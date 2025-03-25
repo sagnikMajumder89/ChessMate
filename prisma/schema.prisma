@@ -1,0 +1,61 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String   @id @default(uuid())
+  firebaseId String   @unique
+  email      String   @unique
+  username   String?  @unique
+  avatar     String?
+  rating     Int      @default(500)
+  createdAt  DateTime @default(now())
+
+  // Relationships
+  gamesAsWhite GameHistory[] @relation("WhiteGames")
+  gamesAsBlack GameHistory[] @relation("BlackGames")
+}
+
+model GameHistory {
+  id            String      @id @default(uuid())
+  timeControlId String
+  timeControl   TimeControl @relation(fields: [timeControlId], references: [id])
+  rated         Boolean
+  result        GameResult
+  pgn           String?
+  createdAt     DateTime    @default(now())
+  endedAt       DateTime?
+
+  whitePlayer   User   @relation("WhiteGames", fields: [whitePlayerId], references: [id])
+  blackPlayer   User   @relation("BlackGames", fields: [blackPlayerId], references: [id])
+  whitePlayerId String
+  blackPlayerId String
+}
+
+model TimeControl {
+  id        String        @id @default(uuid())
+  name      String
+  time      Int           @unique
+  increment Int
+  games     GameHistory[]
+}
+
+enum GameResult {
+  WHITE_WIN
+  BLACK_WIN
+  DRAW
+  ABANDONED
+  TIMEOUT
+  ONGOING
+}
