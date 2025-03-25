@@ -1,4 +1,3 @@
-"use client";
 
 import { Chessboard } from "react-chessboard";
 import { Button } from "@/components/ui/button";
@@ -10,7 +9,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { GameSetting } from "@/lib/interfaces";
 import { ChevronDown } from "lucide-react";
-import { useRef, useEffect, useState } from "react";
 import { Switch } from "@/components/ui/switch";
 import Lottie from "lottie-react";
 import chessLoader from "@/public/json/chess_loader.json";
@@ -28,27 +26,9 @@ const timeOptions = [
 ];
 
 export default function FindMatch({ findGame, gameSettings, setGameSettings, gameFinding }: FindMatchProps) {
-    const boardWrapperRef = useRef<HTMLDivElement>(null);
-    const [boardSize, setBoardSize] = useState(400);
-
-    useEffect(() => {
-        const updateBoardSize = () => {
-            if (boardWrapperRef.current) {
-                const width = boardWrapperRef.current.clientWidth;
-                const newSize = Math.min(width, 500);
-                setBoardSize(newSize);
-            }
-        };
-
-        updateBoardSize();
-        window.addEventListener('resize', updateBoardSize);
-
-        return () => window.removeEventListener('resize', updateBoardSize);
-    }, []);
-
     return (
-        <div className="flex flex-col-reverse lg:grid lg:grid-cols-2 lg:items-center gap-6 w-full min-h-screen mx-auto p-4 relative">
-            {/* Overlay during game finding */}
+        <div className="flex flex-col-reverse items-center justify-center lg:grid lg:grid-cols-2 lg:place-items-center gap-6 w-full min-h-screen mx-auto relative">
+
             {gameFinding && (
                 <div className="absolute inset-0 bg-background/80 z-10 flex items-center justify-center">
                     <div className="text-center space-y-4">
@@ -67,20 +47,9 @@ export default function FindMatch({ findGame, gameSettings, setGameSettings, gam
                 </div>
             )}
 
-            <div
-                ref={boardWrapperRef}
-                className="overflow-hidden aspect-square w-full"
-            >
-                <Chessboard
-                    arePiecesDraggable={false}
-                    boardWidth={boardSize}
-                    customBoardStyle={{
-                        borderRadius: 10,
-                    }}
-                />
-            </div>
+            <Chessboard />
 
-            <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-6 px-5 py-4 rounded-lg shadow-lg w-full lg:w-2/3">
                 <div className="space-y-2">
                     <h2 className="text-xl font-semibold">Game Settings</h2>
                     <p className="text-sm text-muted-foreground">
