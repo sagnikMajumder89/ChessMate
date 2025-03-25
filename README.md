@@ -54,11 +54,15 @@ npm install
 Create a `.env` file in the root directory and configure it as follows:
 
 ```
-NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_firebase_auth_domain
-REDIS_URL=your_redis_url
-POSTGRES_URL=your_postgres_url
-MONGODB_URI=your_mongodb_uri
+NEXT_PUBLIC_FIREBASE_API_KEY=
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
+NEXT_PUBLIC_FIREBASE_APP_ID=
+DATABASE_URL=
+NODE_ENV=
+REDIS_URL=
 ```
 
 ### **Run the Development Server**
