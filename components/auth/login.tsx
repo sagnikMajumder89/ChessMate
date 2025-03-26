@@ -56,7 +56,6 @@ export default function Login() {
         }
         const params = new URLSearchParams(window.location.search);
         const tab = params.get("tab") as "login" | "signup" | null;
-        console.log(tab);
         if (tab) {
             setActiveTab(tab);
         } else {

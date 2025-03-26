@@ -20,7 +20,7 @@ export interface GameState {
     };
     // Board state represented in FEN notation.
     boardState: string;
-    moves: string[];
+    moves: object[];
     status: "waiting" | "in-progress" | "finished";
     currentTurn: "w" | "b";
     lastMoveTimestamp: number;
@@ -58,6 +58,7 @@ export async function getGameStateByUser(uid: string): Promise<GameState | null>
     if (!gameId) return null;
     return getGameState(gameId);
 }
+
 
 export async function removeGameState(gameId: string): Promise<void> {
     const key = `gameState:${gameId}`;

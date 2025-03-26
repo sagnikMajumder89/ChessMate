@@ -6,29 +6,7 @@ import { GameSetting } from "@/lib/interfaces";
 import { useEffect, useState } from "react";
 import { Socket } from "socket.io-client";
 import io from "socket.io-client";
-
-
-export interface PlayerDetails {
-    id: string;
-    uid: string;
-    email: string;
-    rating: number;
-    baseTime: number;
-    color: "w" | "b";
-    timeConsumed: number;
-}
-
-
-interface MatchDetails {
-    id: string;
-    user: PlayerDetails;
-    opponent: PlayerDetails;
-    fen: string;
-    moves: string[];
-    currentTurn: "w" | "b";
-    rated: boolean;
-    increment: number;
-}
+import { MatchDetails } from "@/lib/interfaces";
 
 let socket: Socket | undefined;
 
@@ -62,7 +40,6 @@ const Play = () => {
                 socket.on("match-found", (payload: MatchDetails) => {
                     setGameFinding(false);
                     setMatchDetails(payload);
-                    console.log(payload)
                 });
             }
         };
@@ -88,7 +65,7 @@ const Play = () => {
             {isConnected ? (
                 <>
                     {matchDetails ? (
-                        <Chessboard />
+                        <Chessboard matchDetails={matchDetails} socket={socket!} />
                     ) : (
                         <FindMatch
                             findGame={findGame}
