@@ -1,5 +1,6 @@
 // lib/gameState.ts
 import redis from "@/lib/db/redis";
+import { logger } from "../logger";
 
 // Define the shape of a player in the game state.
 export interface PlayerDetails {
@@ -46,7 +47,7 @@ export async function getGameState(gameId: string): Promise<GameState | null> {
         try {
             return JSON.parse(data) as GameState;
         } catch (error) {
-            console.error("Failed to parse game state:", error);
+            logger.error("Failed to parse game state:", error);
             return null;
         }
     }

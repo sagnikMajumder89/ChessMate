@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { Socket } from "socket.io-client";
 import io from "socket.io-client";
 import { MatchDetails } from "@/lib/interfaces";
+import { logger } from "@/lib/logger";
 
 let socket: Socket | undefined;
 
@@ -24,18 +25,24 @@ const Play = () => {
     useEffect(() => {
         const initialize = async () => {
             if (user) {
-                await fetch("/api/socket");
                 const token = await user.getIdToken();
-                socket = io({
+
+                socket = io("wss://chessmate.bytebuilderz.xyz", {
+                    path: "/socket.io/",
                     auth: { token },
+                    transports: ["websocket"],
                     reconnectionAttempts: 5,
                     reconnectionDelay: 1000,
-                }) as Socket;
+                });
 
                 socket.on("connect", () => {
+                    logger.info("✅ Connected to WebSocket Server");
                     setIsConnected(true);
                 });
 
+                socket.on("connect_error", (err) => {
+                    logger.error("❌ WebSocket Connection Error:", err);
+                });
 
                 socket.on("match-found", (payload: MatchDetails) => {
                     setGameFinding(false);

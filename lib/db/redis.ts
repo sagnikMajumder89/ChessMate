@@ -20,7 +20,7 @@ class RedisClient {
             });
 
             RedisClient.instance.on("connect", () => {
-                console.log("Connected to Redis");
+                logger.info("Connected to Redis");
             });
         }
         return RedisClient.instance;
