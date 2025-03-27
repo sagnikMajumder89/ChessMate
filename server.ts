@@ -12,7 +12,10 @@ const PORT = process.env.SOCKET_PORT;
 const httpServer = createServer();
 const io = new Server(httpServer, {
     cors: {
-        origin: "https://chessmate.bytebuilderz.xyz",
+        origin: [
+            "https://chessmate.bytebuilderz.xyz",
+            "https://www.chessmate.bytebuilderz.xyz"
+        ],
         methods: ["GET", "POST"],
     },
 });
