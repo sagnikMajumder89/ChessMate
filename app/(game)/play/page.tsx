@@ -4,10 +4,10 @@ import FindMatch from "@/components/play/find-match";
 import { useAuth } from "@/lib/auth/authContext";
 import { GameSetting } from "@/lib/interfaces";
 import { useEffect, useState } from "react";
-import { Socket } from "socket.io-client";
-import io from "socket.io-client";
 import { MatchDetails } from "@/lib/interfaces";
-
+import { getSocket } from "@/config/socketClient";
+import { Socket } from "socket.io-client";
+import { toast } from "sonner";
 let socket: Socket | undefined;
 
 const Play = () => {
@@ -21,26 +21,28 @@ const Play = () => {
         rated: true,
     });
 
+    const findGame = async () => {
+        setGameFinding(true);
+
+        setMatchDetails(null);
+        if (socket) {
+            socket.emit("find-game", { ...gameSettings });
+        }
+    };
+
     useEffect(() => {
         const initialize = async () => {
             if (user) {
                 const token = await user.getIdToken();
 
-                socket = io("wss://chessmate.bytebuilderz.xyz", {
-                    path: "/socket.io/",
-                    auth: { token },
-                    transports: ["websocket"],
-                    reconnectionAttempts: 5,
-                    reconnectionDelay: 1000,
-                });
+                socket = getSocket(token);
 
                 socket.on("connect", () => {
-                    console.log("✅ Connected to WebSocket Server");
                     setIsConnected(true);
                 });
 
-                socket.on("connect_error", (err) => {
-                    console.error("❌ WebSocket Connection Error:", err);
+                socket.on("connect_error", () => {
+                    toast.error("Error connecting to server");
                 });
 
                 socket.on("match-found", (payload: MatchDetails) => {
@@ -57,14 +59,13 @@ const Play = () => {
         };
     }, [user]);
 
-    const findGame = async () => {
-        setGameFinding(true);
-
-        setMatchDetails(null);
-        if (socket) {
-            socket.emit("find-game", { ...gameSettings });
-        }
-    };
+    if (!user) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <p>Please log in to play.</p>
+            </div>
+        );
+    }
 
     return (
         <div className="w-full">
