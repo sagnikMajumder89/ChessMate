@@ -7,6 +7,7 @@ import Loader from "@/components/loading";
 
 interface AuthContextType {
     user: User | null;
+    loading: boolean;
 }
 
 
@@ -34,7 +35,7 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
     }
 
     return (
-        <AuthContext.Provider value={{ user }}>
+        <AuthContext.Provider value={{ user, loading }}>
             {children}
         </AuthContext.Provider>
     );

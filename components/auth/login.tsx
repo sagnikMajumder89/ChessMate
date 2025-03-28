@@ -52,6 +52,7 @@ export default function Login() {
 
     useEffect(() => {
         if (user) {
+            console.log("User is logged in, redirecting to home page");
             router.push("/");
         }
         const params = new URLSearchParams(window.location.search);
@@ -171,6 +172,19 @@ export default function Login() {
                         </>
                     )}
                 </p>
+
+                <div className="text-center text-sm text-muted-foreground">
+                    <p>By continuing, you agree to our</p>
+                    <p>
+                        <button className="underline underline-offset-4 hover:text-primary">
+                            Terms of Service
+                        </button>{" "}
+                        and{" "}
+                        <button className="underline underline-offset-4 hover:text-primary">
+                            Privacy Policy
+                        </button>
+                    </p>
+                </div>
             </div>
         </div>
     );

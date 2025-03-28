@@ -8,9 +8,13 @@ import { MatchDetails } from "@/lib/interfaces";
 import { getSocket } from "@/config/socketClient";
 import { Socket } from "socket.io-client";
 import { toast } from "sonner";
+import LoginAlert from "@/components/auth/LoginAlert";
+import { useRouter } from "next/navigation";
 let socket: Socket | undefined;
 
 const Play = () => {
+    const router = useRouter();
+    const [showLoginAlert, setShowLoginAlert] = useState(false);
     const [isConnected, setIsConnected] = useState(false);
     const [gameFinding, setGameFinding] = useState(false);
     const [matchDetails, setMatchDetails] = useState<MatchDetails | null>(null);
@@ -29,6 +33,14 @@ const Play = () => {
             socket.emit("find-game", { ...gameSettings });
         }
     };
+    const onClose = () => {
+        router.push("/");
+        setShowLoginAlert(false);
+    }
+
+    const onLoginClick = () => {
+        router.push('/login')
+    }
 
     useEffect(() => {
         const initialize = async () => {
@@ -49,6 +61,8 @@ const Play = () => {
                     setGameFinding(false);
                     setMatchDetails(payload);
                 });
+            } else {
+                setShowLoginAlert(true);
             }
         };
 
@@ -58,15 +72,6 @@ const Play = () => {
             socket?.disconnect();
         };
     }, [user]);
-
-    if (!user) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <p>Please log in to play.</p>
-            </div>
-        );
-    }
-
     return (
         <div className="w-full">
             {isConnected ? (
@@ -85,6 +90,7 @@ const Play = () => {
             ) : (
                 <div className="min-h-screen flex items-center justify-center">Connecting...</div>
             )}
+            <LoginAlert show={showLoginAlert} onLoginClick={onLoginClick} onClose={onClose} />
         </div>
     );
 };
