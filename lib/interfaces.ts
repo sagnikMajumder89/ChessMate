@@ -12,6 +12,7 @@ export interface PlayerDetails {
     baseTime: number;
     color: "w" | "b";
     timeConsumed: number;
+    photo: string;
 }
 
 export interface Move {

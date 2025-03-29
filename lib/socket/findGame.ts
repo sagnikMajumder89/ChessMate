@@ -16,6 +16,7 @@ interface User {
     uid: string;
     email: string;
     rating: number;
+    photo: string;
 }
 
 interface StoredEntry {
@@ -24,6 +25,7 @@ interface StoredEntry {
     uid: string;
     email: string;
     rating: number;
+    photo: string;
 }
 
 
@@ -73,6 +75,7 @@ export const findGame = async (io: Server, socket: Socket, settings: Matchmaking
             baseTime: settings.time,
             color: "w" as "w" | "b",
             timeConsumed: 0,
+            photo: user.photo,
         }
         const black = {
             id: matchedEntry.id,
@@ -82,6 +85,7 @@ export const findGame = async (io: Server, socket: Socket, settings: Matchmaking
             baseTime: settings.time,
             color: "b" as "w" | "b",
             timeConsumed: 0,
+            photo: matchedEntry.photo,
         }
         delete socket.data.matchKey;
         delete socket.data.matchEntry;
@@ -141,6 +145,7 @@ export const findGame = async (io: Server, socket: Socket, settings: Matchmaking
             uid: user.uid,
             email: user.email,
             rating: user.rating,
+            photo: user.photo,
         };
         const entryStr = JSON.stringify(entry);
         socket.data.matchEntry = entryStr;

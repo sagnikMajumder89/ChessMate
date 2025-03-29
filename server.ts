@@ -39,6 +39,7 @@ app.prepare().then(() => {
                 uid: decodedToken.uid,
                 email: decodedToken.email,
                 rating: userDB!.rating,
+                photo: decodedToken.picture || "",
             };
 
             next();

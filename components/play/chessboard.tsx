@@ -75,7 +75,7 @@ export default function Chessboard({ matchDetails, socket }: ChessboardProps) {
     return (
         <div className="flex flex-col h-full w-full lg:flex-row justify-around items-center">
             <div className="w-full lg:w-1/2">
-                <PlayerDetails playerColor="b" />
+                <PlayerDetails playerDetails={matchDetails.opponent} />
                 <div className="w-full aspect-square">
                     <ChessboardR
                         position={game.fen()}
@@ -85,7 +85,7 @@ export default function Chessboard({ matchDetails, socket }: ChessboardProps) {
                         customSquareStyles={customSquareStyles}
                     />
                 </div>
-                <PlayerDetails playerColor="w" />
+                <PlayerDetails playerDetails={matchDetails.user} />
             </div>
             <MenuSection />
         </div>

@@ -1,35 +1,30 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import Image from "next/image";
 import Timer from "@/components/play/timer";
+import { PlayerDetails as IPlayerDetails } from "@/lib/interfaces";
 
 interface PlayerDetailsProps {
-    playerColor: "w" | "b";
+    playerDetails: IPlayerDetails;
 }
 
-export default function PlayerDetails({ playerColor }: PlayerDetailsProps) {
+export default function PlayerDetails({ playerDetails }: PlayerDetailsProps) {
+
     return (
-        <div><div className="bg-accent rounded-xl py-1 lg:py-2 px-4 my-2 flex flex-row justify-between ">
+        <div><div className="bg-accent rounded-xl px-4 my-2 flex flex-row justify-between ">
             <div className="flex items-center space-x-2">
                 <Avatar>
-                    <AvatarImage src="https://github.com/shadcn.png" />
-                    <AvatarFallback>CN</AvatarFallback>
+                    <AvatarImage src={playerDetails.photo} />
+                    <AvatarFallback className="border-2">{playerDetails.email.slice(0, 2).toUpperCase()}</AvatarFallback>
                 </Avatar>
-                <div className="flex flex-row gap-2 lg:flex-col lg:gap-0 items-start">
+                <div className="flex flex-row gap-1 items-center">
                     <span className="font-semibold">
-                        Ssagnik
+                        {playerDetails.email.split('@')[0]}
                     </span>
-                    <span className="flex flex-row items-center gap-1">
-                        <Image
-                            src="/icons/rating-white.png"
-                            alt="India"
-                            width={16}
-                            height={16}
-                        />
-                        1145
+                    <span className="text-sm font-semibold">
+                        ({playerDetails.rating})
                     </span>
                 </div>
             </div>
-            <Timer time={10} playerColor={playerColor} />
+            <Timer time={10} playerColor={playerDetails.color} />
         </div></div>
     )
 }

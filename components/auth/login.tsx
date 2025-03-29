@@ -52,7 +52,6 @@ export default function Login() {
 
     useEffect(() => {
         if (user) {
-            console.log("User is logged in, redirecting to home page");
             router.push("/");
         }
         const params = new URLSearchParams(window.location.search);
