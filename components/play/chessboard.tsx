@@ -57,6 +57,10 @@ export default function Chessboard({ matchDetails, socket }: ChessboardProps) {
         };
 
         socket.on("move", handleIncomingMove);
+        // IMPLEMENT
+        socket.on("gameOver", () => {
+            toast.error("Game Over");
+        });
         socket.on("error", (error: string) => {
             toast.error(error);
         })
@@ -75,7 +79,7 @@ export default function Chessboard({ matchDetails, socket }: ChessboardProps) {
     return (
         <div className="flex flex-col h-full w-full lg:flex-row justify-around items-center">
             <div className="w-full lg:w-1/2">
-                <PlayerDetails playerDetails={matchDetails.opponent} />
+                <PlayerDetails socket={socket} playerDetails={matchDetails.opponent} isActive={game.turn() == matchDetails.opponent.color} />
                 <div className="w-full aspect-square">
                     <ChessboardR
                         position={game.fen()}
@@ -85,7 +89,7 @@ export default function Chessboard({ matchDetails, socket }: ChessboardProps) {
                         customSquareStyles={customSquareStyles}
                     />
                 </div>
-                <PlayerDetails playerDetails={matchDetails.user} />
+                <PlayerDetails socket={socket} playerDetails={matchDetails.user} isActive={game.turn() == matchDetails.user.color} />
             </div>
             <MenuSection />
         </div>

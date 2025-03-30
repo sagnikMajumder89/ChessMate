@@ -1,4 +1,4 @@
-import { getGameStateByUser, saveGameState } from '@/lib/game/gameState';
+import { getGameState, getGameStateByUser, moveGameToDB, saveGameState } from '@/lib/game/gameState';
 import { v4 as uuidv4 } from 'uuid';
 import redis from '@/lib/db/redis'
 import { Server, Socket } from "socket.io";
@@ -137,6 +137,49 @@ export const findGame = async (io: Server, socket: Socket, settings: Matchmaking
             createdAt: Date.now(),
             updatedAt: Date.now(),
         });
+        let cnt = 0;
+        const intervalId = setInterval(async () => {
+            const game = await getGameState(newGameId);
+            if (!game) return;
+            const now = Date.now();
+            const timeElapsed = now - game.lastMoveTimestamp;
+            if (game.currentTurn === "w") {
+                if (game.players.white.timeConsumed + timeElapsed >= game.players.white.baseTime * 1000) {
+                    socket.to(newGameId).emit("gameOver", "Time's up!");
+                    game.players.white.timeConsumed = game.players.white.baseTime * 1000 + 1000;
+                    game.status = "finished";
+                    await saveGameState(game);
+                    moveGameToDB(newGameId);
+                    clearInterval(intervalId);
+                    return;
+                }
+                game.players.white.timeConsumed += timeElapsed;
+            } else {
+                if (game.players.black.timeConsumed + timeElapsed > game.players.black.baseTime * 1000) {
+
+                    socket.to(newGameId).emit("gameOver", "Time's up!");
+                    game.players.black.timeConsumed = game.players.black.baseTime * 1000 + 1000;
+                    game.status = "finished";
+                    moveGameToDB(newGameId);
+                    await saveGameState(game);
+                    clearInterval(intervalId);
+                    return;
+                }
+
+                game.players.black.timeConsumed += timeElapsed;
+            }
+            if (cnt > 3) {
+                io.to(newGameId).emit("time-sync", {
+                    "w": game.players.white.timeConsumed,
+                    "b": game.players.black.timeConsumed,
+                });
+                cnt = 0;
+            } else {
+                cnt++;
+            }
+            game.lastMoveTimestamp = now;
+            await saveGameState(game);
+        }, 1000);
     } else {
 
         const entry: StoredEntry = {

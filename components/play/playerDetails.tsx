@@ -1,13 +1,16 @@
+"use client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import Timer from "@/components/play/timer";
 import { PlayerDetails as IPlayerDetails } from "@/lib/interfaces";
+import { Socket } from "socket.io-client";
 
 interface PlayerDetailsProps {
     playerDetails: IPlayerDetails;
+    isActive: boolean;
+    socket: Socket;
 }
 
-export default function PlayerDetails({ playerDetails }: PlayerDetailsProps) {
-
+export default function PlayerDetails({ playerDetails, isActive, socket }: PlayerDetailsProps) {
     return (
         <div><div className="bg-accent rounded-xl px-4 my-2 flex flex-row justify-between ">
             <div className="flex items-center space-x-2">
@@ -24,7 +27,7 @@ export default function PlayerDetails({ playerDetails }: PlayerDetailsProps) {
                     </span>
                 </div>
             </div>
-            <Timer time={10} playerColor={playerDetails.color} />
+            <Timer socket={socket} playerColor={playerDetails.color} isActive={isActive} baseTime={playerDetails.baseTime} timeConsumed={playerDetails.timeConsumed} />
         </div></div>
     )
 }

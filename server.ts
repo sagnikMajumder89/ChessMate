@@ -10,17 +10,13 @@ import { findGame } from "./lib/socket/findGame";
 import moveHandler from "./lib/socket/moveHandler";
 import { admin } from "./lib/firebase/firebaseAdmin";
 import { checkUser } from "./lib/socket/auth";
-
-
 const port = parseInt(process.env.PORT || "4000", 10);
-
 const dev = process.env.NODE_ENV !== "production";
 const app = next({ dev });
 const handler = app.getRequestHandler();
 const hostname = process.env.HOSTNAME || "localhost";
 app.prepare().then(() => {
     const httpServer = createServer(handler);
-
     const io = new Server(httpServer);
 
     io.use(async (socket, next) => {

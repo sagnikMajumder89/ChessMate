@@ -20,7 +20,7 @@ const Play = () => {
     const [matchDetails, setMatchDetails] = useState<MatchDetails | null>(null);
     const { user } = useAuth();
     const [gameSettings, setGameSettings] = useState<GameSetting>({
-        time: 10,
+        time: 180,
         increment: 0,
         rated: true,
     });

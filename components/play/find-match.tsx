@@ -21,8 +21,8 @@ interface FindMatchProps {
 }
 
 const timeOptions = [
-    { label: "3 mins", value: 3 },
-    { label: "10 mins", value: 10 },
+    { label: "3 mins", value: 180 },
+    { label: "10 mins", value: 600 },
 ];
 
 export default function FindMatch({ findGame, gameSettings, setGameSettings, gameFinding }: FindMatchProps) {
@@ -68,7 +68,7 @@ export default function FindMatch({ findGame, gameSettings, setGameSettings, gam
                                         className="w-full justify-between"
                                         disabled={gameFinding}
                                     >
-                                        {gameSettings.time} min{gameSettings.time !== 1 ? "s" : ""}
+                                        {gameSettings.time / 60} min{gameSettings.time / 60 !== 1 ? "s" : ""}
                                         <ChevronDown className="ml-2 h-4 w-4 opacity-50" />
                                     </Button>
                                 </DropdownMenuTrigger>

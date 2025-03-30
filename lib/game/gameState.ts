@@ -1,6 +1,8 @@
 // lib/gameState.ts
 import redis from "@/lib/db/redis";
 import { logger } from "../logger";
+import { prisma } from "../db/prisma";
+import { GameStatus } from "@prisma/client";
 
 // Define the shape of a player in the game state.
 export interface PlayerDetails {
@@ -22,7 +24,7 @@ export interface GameState {
     // Board state represented in FEN notation.
     boardState: string;
     moves: object[];
-    status: "waiting" | "in-progress" | "finished";
+    status: "waiting" | "finished";
     currentTurn: "w" | "b";
     lastMoveTimestamp: number;
     rated: boolean;
@@ -60,13 +62,42 @@ export async function getGameStateByUser(uid: string): Promise<GameState | null>
     return getGameState(gameId);
 }
 
+export async function removeUserMapping(uid: string): Promise<void> {
+    const key = `userGame:${uid}`;
+    await redis.del(key);
+}
 
 export async function removeGameState(gameId: string): Promise<void> {
     const key = `gameState:${gameId}`;
     await redis.del(key);
 }
 
-export function getRemainingTime(player: PlayerDetails, lastMoveTimestamp: number): number {
-    const elapsed = Date.now() - lastMoveTimestamp;
-    return Math.max(player.baseTime - player.timeConsumed - elapsed, 0);
+export async function moveGameToDB(gameId: string): Promise<void> {
+    try {
+        const gameState = await getGameState(gameId);
+        if (!gameState) {
+            logger.error(`Game state not found for gameId: ${gameId}`);
+            return;
+        }
+        await removeUserMapping(gameState.players.white.uid);
+        await removeUserMapping(gameState.players.black.uid);
+        await removeGameState(gameId);
+        await prisma.game.create({
+            data: {
+                id: gameState.gameId,
+                whitePlayerId: gameState.players.white.id,
+                blackPlayerId: gameState.players.black.id,
+                boardState: gameState.boardState,
+                moves: JSON.stringify(gameState.moves),
+                status: gameState.status.toUpperCase() as GameStatus,
+                currentTurn: gameState.currentTurn,
+                lastMoveTimestamp: gameState.lastMoveTimestamp,
+                rated: gameState.rated,
+                increment: gameState.increment
+            }
+        });
+    } catch (e) {
+        logger.error(`Error moving game to DB: ${e}`);
+        return;
+    }
 }
