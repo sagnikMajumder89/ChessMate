@@ -124,3 +124,8 @@
     @apply bg-background text-foreground;
   }
 }
+
+.my-menu-trigger-icon svg {
+  height: 24px !important;
+  width: 24px !important;
+}

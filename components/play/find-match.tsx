@@ -27,7 +27,7 @@ const timeOptions = [
 
 export default function FindMatch({ findGame, gameSettings, setGameSettings, gameFinding }: FindMatchProps) {
     return (
-        <div className="flex flex-col-reverse items-center justify-center lg:grid lg:grid-cols-2 lg:place-items-center gap-6 w-full min-h-screen mx-auto relative">
+        <div className="flex flex-col-reverse items-center justify-center px-4 lg:grid lg:grid-cols-2 lg:place-items-center gap-6 w-full min-h-screen mx-auto relative">
 
             {gameFinding && (
                 <div className="absolute inset-0 bg-background/80 z-10 flex items-center justify-center">
@@ -49,7 +49,7 @@ export default function FindMatch({ findGame, gameSettings, setGameSettings, gam
 
             <Chessboard />
 
-            <div className="flex flex-col gap-6 px-5 py-4 rounded-lg shadow-lg w-full lg:w-2/3">
+            <div className="flex flex-col gap-6 px-3 py-4 rounded-lg shadow-lg w-full lg:w-2/3">
                 <div className="space-y-2">
                     <h2 className="text-xl font-semibold">Game Settings</h2>
                     <p className="text-sm text-muted-foreground">

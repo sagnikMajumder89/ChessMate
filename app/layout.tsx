@@ -28,8 +28,10 @@ export default function RootLayout({
           <AuthProvider>
             <SidebarProvider>
               <AppSidebar />
-              <SidebarTrigger />
-              {children}
+              <div className="flex flex-col min-h-screen w-full">
+                <SidebarTrigger />
+                {children}
+              </div>
             </SidebarProvider>
           </AuthProvider>
         </ThemeProvider>

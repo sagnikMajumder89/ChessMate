@@ -28,7 +28,7 @@ export default function Home() {
               <p className="text-lg">
                 Play Online
               </p>
-              <span className="text-muted-foreground text-[0.6rem] lg:text-[1rem]">
+              <span className="text-black font-light text-[0.6rem] lg:text-[1rem]">
                 Play chess with random people
               </span>
             </div>
@@ -43,7 +43,7 @@ export default function Home() {
               <p className="text-lg">
                 Play Bots
               </p>
-              <span className="text-muted-foreground text-[0.6rem] lg:text-[1rem]">
+              <span className="text-black font-light text-[0.6rem] lg:text-[1rem]">
                 Play chess with computer bots
               </span>
             </div>

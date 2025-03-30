@@ -65,7 +65,7 @@ const supportItems = [
     },
     {
         title: "Feedback",
-        url: "#",
+        url: "/feedback",
         icon: MessageCircle,
     },
 ]
