@@ -2,7 +2,6 @@
 import clsx from "clsx";
 import { useEffect, useState } from "react";
 import { Socket } from "socket.io-client";
-import { toast } from "sonner";
 
 interface TimerProps {
     baseTime: number;
@@ -18,7 +17,6 @@ const Timer: React.FC<TimerProps> = ({ baseTime, socket, timeConsumed, isActive,
         const timeSyncHandler = (time: number) => {
             let remTime = baseTime - Math.floor(time[playerColor] / 1000);
             if (remTime < 0) remTime = 0;
-            toast.success(`Time synced for ${playerColor}: ${remTime}s`);
             setRemainingTime(remTime);
         };
 
