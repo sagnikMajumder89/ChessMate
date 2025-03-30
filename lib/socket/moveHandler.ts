@@ -61,7 +61,7 @@ const moveHandler = async (io: Server, socket: Socket, move: Move) => {
     if (game.isGameOver()) {
         gameState.status = "finished";
         io.to(gameId).emit("gameOver", { message: "Game Over" });
-        moveGameToDB(gameId);
+        await moveGameToDB(gameId);
     }
 
     await saveGameState(gameState);

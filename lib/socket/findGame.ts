@@ -149,7 +149,7 @@ export const findGame = async (io: Server, socket: Socket, settings: Matchmaking
                     game.players.white.timeConsumed = game.players.white.baseTime * 1000 + 1000;
                     game.status = "finished";
                     await saveGameState(game);
-                    moveGameToDB(newGameId);
+                    await moveGameToDB(newGameId);
                     clearInterval(intervalId);
                     return;
                 }
@@ -160,7 +160,7 @@ export const findGame = async (io: Server, socket: Socket, settings: Matchmaking
                     socket.to(newGameId).emit("gameOver", "Time's up!");
                     game.players.black.timeConsumed = game.players.black.baseTime * 1000 + 1000;
                     game.status = "finished";
-                    moveGameToDB(newGameId);
+                    await moveGameToDB(newGameId);
                     await saveGameState(game);
                     clearInterval(intervalId);
                     return;
