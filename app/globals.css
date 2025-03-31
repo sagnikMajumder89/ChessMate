@@ -1,10 +1,14 @@
-@import url('https://fonts.googleapis.com/css2?family=Boldonse&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Sigmar+One&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 @custom-variant dark (&:is(.dark *));
 
-.boldonse-heading {
-  font-family: "Boldonse", sans-serif;
+.sigmar-text {
+  font-family: "Sigmar One", sans-serif;
+}
+
+.ubuntu-text {
+  font-family: "Ubuntu", sans-serif;
 }
 
 @theme inline {

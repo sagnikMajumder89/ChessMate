@@ -108,7 +108,7 @@ export function AppSidebar() {
                                 width={50}
                                 height={50}
                             />
-                            <h1 className="boldonse-heading mr-auto">ChessMate</h1>
+                            <h1 className="sigmar-text mr-auto text-2xl">ChessMate</h1>
                             <SidebarTrigger className="md:hidden" />
                         </SidebarMenuItem>
                     </SidebarMenu>
