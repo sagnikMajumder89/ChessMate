@@ -40,7 +40,7 @@ app.prepare().then(() => {
 
             next();
         } catch (error) {
-            logger.error("Authentication error:", error);
+            logger.error("Socket Authentication error:", error);
             next(new Error("Authentication failed"));
         }
     });
