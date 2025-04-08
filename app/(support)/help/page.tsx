@@ -138,7 +138,7 @@ export default function HelpPage() {
                 <div>
                   <h3 className="font-semibold">Support Channels</h3>
                   <p className="text-muted-foreground">
-                    We're here to help 24/7
+                    We&apos;re here to help 24/7
                   </p>
                 </div>
               </div>
@@ -167,7 +167,7 @@ export default function HelpPage() {
               <Alert>
                 <AlertTitle>Message Sent!</AlertTitle>
                 <AlertDescription>
-                  We'll respond to your inquiry within 12 hours
+                  We&apos;ll respond to your inquiry within 12 hours
                 </AlertDescription>
               </Alert>
             )}
