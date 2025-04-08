@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Mail, MessageSquare, LifeBuoy, Clock } from "lucide-react";
+import { Mail, MessageSquare, LifeBuoy, Clock, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,8 @@ import {
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import axios from "axios";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -46,16 +48,28 @@ const faqs = [
 export default function HelpPage() {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [success, setSuccess] = useState(false);
-
+  const [loading, setLoading] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: { name: "", email: "", message: "" },
   });
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    // Implement logic to send the message to the server
+    try {
+      setLoading(true);
+      axios.post("/api/support/help", {
+        name: values.name,
+        email: values.email,
+        message: values.message,
+      });
+      toast.success("Message sent successfully!");
+      setSuccess(true);
+    } catch {
+      toast.error("Error sending message");
+    } finally {
+      setLoading(false);
+    }
     form.reset();
-    setSuccess(true);
   };
 
   return (
@@ -205,10 +219,17 @@ export default function HelpPage() {
                     </FormItem>
                   )}
                 />
-                <Button type="submit" className="w-full">
-                  <MessageSquare className="w-4 h-4 mr-2" />
-                  Send Message
-                </Button>
+                {loading ? (
+                  <Button disabled type="submit" className="w-full">
+                    <Loader2 className="animate-spin" />
+                    Sending...
+                  </Button>
+                ) : (
+                  <Button type="submit" className="w-full">
+                    <MessageSquare className="w-4 h-4 mr-2" />
+                    Send Message
+                  </Button>
+                )}
               </form>
             </Form>
           </div>

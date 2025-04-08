@@ -37,7 +37,21 @@ model Game {
   createdAt         DateTime   @default(now())
 }
 
+model Messages{
+  id String @id @default(uuid())
+  name String
+  email String
+  message String
+  type MessageType
+  createdAt DateTime @default(now())
+}
+
 enum GameStatus {
   WAITING
   FINISHED
+}
+
+enum MessageType {
+  HELP
+  FEEDBACK
 }
