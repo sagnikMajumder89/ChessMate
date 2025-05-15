@@ -33,7 +33,7 @@ export default function Home() {
               </span>
             </div>
           </Button>
-          <Button className="h-fit">
+          <Button className="h-fit" onClick={() => router.push("/playBot")}>
             <Image
               src="/icons/robot.webp"
               alt="Play"

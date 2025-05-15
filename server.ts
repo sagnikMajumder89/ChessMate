@@ -1,5 +1,5 @@
 import 'module-alias/register';
-import dotenv from "dotenv"; // Add this line
+import dotenv from "dotenv";
 dotenv.config();
 import { createServer } from "http";
 import { Server } from "socket.io";
