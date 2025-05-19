@@ -1,4 +1,4 @@
-import 'module-alias/register';
+import "module-alias/register";
 import dotenv from "dotenv";
 dotenv.config();
 import { createServer } from "http";
@@ -10,58 +10,80 @@ import { findGame } from "./lib/socket/findGame";
 import moveHandler from "./lib/socket/moveHandler";
 import { admin } from "./lib/firebase/firebaseAdmin";
 import { checkUser } from "./lib/socket/auth";
+import { setupGame } from "./lib/socket/botGame";
+import { removeBotGameState } from "./lib/game/botGameState";
 const port = parseInt(process.env.PORT || "4000", 10);
 const dev = process.env.NODE_ENV !== "production";
 const app = next({ dev });
 const handler = app.getRequestHandler();
 const hostname = process.env.HOSTNAME || "localhost";
 app.prepare().then(() => {
-    const httpServer = createServer(handler);
-    const io = new Server(httpServer);
+  const httpServer = createServer(handler);
+  const io = new Server(httpServer);
 
-    io.use(async (socket, next) => {
-        const token = socket.handshake.auth.token;
+  io.use(async (socket, next) => {
+    const token = socket.handshake.auth.token;
 
-        if (!token) {
-            return next(new Error("Authentication token missing"));
-        }
+    if (!token) {
+      return next(new Error("Authentication token missing"));
+    }
 
-        try {
-            const decodedToken = await admin.auth().verifyIdToken(token);
-            const userDB = await checkUser({ uid: decodedToken.uid, email: decodedToken.email as string });
+    if (token === "guest") {
+      socket.data.user = {
+        id: socket.id,
+        uid: socket.id,
+        email: null,
+        rating: 0,
+        photo: "",
+      };
+      return next();
+    }
 
-            socket.data.user = {
-                id: userDB!.id,
-                uid: decodedToken.uid,
-                email: decodedToken.email,
-                rating: userDB!.rating,
-                photo: decodedToken.picture || "",
-            };
+    try {
+      const decodedToken = await admin.auth().verifyIdToken(token);
+      const userDB = await checkUser({
+        uid: decodedToken.uid,
+        email: decodedToken.email as string,
+      });
 
-            next();
-        } catch (error) {
-            logger.error("Socket Authentication error:", error);
-            next(new Error("Authentication failed"));
-        }
+      socket.data.user = {
+        id: userDB!.id,
+        uid: decodedToken.uid,
+        email: decodedToken.email,
+        rating: userDB!.rating,
+        photo: decodedToken.picture || "",
+      };
+
+      next();
+    } catch (error) {
+      logger.error("Socket Authentication error:", error);
+      next(new Error("Authentication failed"));
+    }
+  });
+  io.on("connection", (socket) => {
+    socket.on("find-game", (data) => findGame(io, socket, data));
+    socket.on("move", (data) => moveHandler(io, socket, data));
+    // TO DO: implement bot game
+    socket.on("find-bot-game", (data) => setupGame(io, socket, data));
+    socket.on("disconnect", async () => {
+      //TO DO: delete bot game also
+      if (socket.data.gameId) {
+        await removeBotGameState(socket.data.gameId);
+      }
+      if (socket.data.matchKey && socket.data.matchEntry) {
+        await redis.zrem(socket.data.matchKey, socket.data.matchEntry);
+      }
+      logger.info("User disconnected:", socket.id);
     });
-    io.on('connection', (socket) => {
-        socket.on("find-game", (data) => findGame(io, socket, data));
-        socket.on("move", (data) => moveHandler(io, socket, data));
-        socket.on("disconnect", async () => {
-            if (socket.data.matchKey && socket.data.matchEntry) {
-                await redis.zrem(socket.data.matchKey, socket.data.matchEntry);
-            }
-            logger.info("User disconnected:", socket.id);
-        });
-    })
+  });
 
-    httpServer
-        .once("error", (err) => {
-            logger.error(err);
-            process.exit(1);
-        })
-        .listen(port, () => {
-            if (process.env.NODE_ENV !== "production")
-                console.log(`> Ready on http://${hostname}:${port}`);
-        });
+  httpServer
+    .once("error", (err) => {
+      logger.error(err);
+      process.exit(1);
+    })
+    .listen(port, () => {
+      if (process.env.NODE_ENV !== "production")
+        console.log(`> Ready on http://${hostname}:${port}`);
+    });
 });
