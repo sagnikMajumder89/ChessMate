@@ -2,20 +2,18 @@
 
 import { useState } from "react";
 import { Slider } from "@/components/ui/slider";
+import { Button } from "@/components/ui/button";
 
-export default function Dialogs() {
+type DialogsProps = {
+  setupGame: (level: any, color: any) => void;
+};
+
+export default function Dialogs({ setupGame }: DialogsProps) {
   const [level, setLevel] = useState(4);
   const [color, setColor] = useState("w");
 
-  const handleStartGame = () => {
-    console.log("Starting game with:");
-    console.log("Level:", level);
-    console.log("Color:", color);
-    // Trigger the game start logic here
-  };
-
   return (
-    <div className="flex items-center justify-center min-h-screen">
+    <div className="flex items-center justify-center min-h-full">
       <div className="w-full max-w-md p-6 rounded-2xl shadow-md">
         <h1 className="text-2xl font-bold mb-4 text-center">Play vs Bot</h1>
 
@@ -58,12 +56,17 @@ export default function Dialogs() {
           </div>
         </div>
 
-        <button
-          onClick={handleStartGame}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg"
+        <Button
+          onClick={() => setupGame(level, color)}
+          className="
+    w-full text-white font-semibold py-2 px-4 rounded-lg
+    bg-gradient-ai animate-gradient-x
+    hover:brightness-110 transition duration-300
+    border border-white/20 shadow-lg
+  "
         >
           Start Game
-        </button>
+        </Button>
       </div>
     </div>
   );

@@ -6,32 +6,27 @@ import { Connecting } from "@/components/play/Connecting";
 import { useAuth } from "@/lib/auth/authContext";
 import { getSocket } from "@/config/socketClient";
 import type { Socket } from "socket.io-client";
-import type { DefaultEventsMap } from "@socket.io/component-emitter";
+import BotChessboard from "@/components/playBot/BotComponent/Chessboard";
+let socket: Socket | undefined;
 
 export default function page() {
   const [gameFinding, setGameFinding] = useState(false);
   const [matchDetails, setMatchDetails] = useState(null);
-  const [level, setLevel] = useState(4);
   const [isConnected, setIsConnected] = useState(false);
-  const [socket, setSocket] = useState<Socket<
-    DefaultEventsMap,
-    DefaultEventsMap
-  > | null>(null);
   const { user } = useAuth();
 
-  const setupGame = () => {
+  const setupGame = (level, color) => {
     setGameFinding(true);
     socket?.emit("find-bot-game", {
-      level: level,
-      color: "w",
+      level,
+      color,
     });
   };
 
   useEffect(() => {
     const initialize = async () => {
       const token = user ? await user?.getIdToken() : "guest";
-      const socket = getSocket(token);
-      setSocket(socket);
+      socket = getSocket(token);
       if (socket) {
         socket.on("connect", () => {
           setIsConnected(true);
@@ -59,11 +54,21 @@ export default function page() {
   return (
     <div className="flex flex-row items-center justify-center h-full ml-6">
       <div className="w-2/3">
-        <Chessboard />
+        {matchDetails ? (
+          <BotChessboard data={matchDetails} socket={socket!} />
+        ) : (
+          <Chessboard arePiecesDraggable={false} />
+        )}
       </div>
 
       <div className="w-1/2">
-        <Dialogs />
+        {gameFinding ? (
+          <Connecting />
+        ) : matchDetails ? (
+          <div>Game connected</div>
+        ) : (
+          <Dialogs setupGame={setupGame} />
+        )}
       </div>
     </div>
   );

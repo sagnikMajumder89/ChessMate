@@ -1,31 +1,73 @@
-import { spawn } from 'child_process';
+import { spawn } from "child_process";
 
-function getBestMove(fen: string): Promise<string> {
+// Add move parsing function based on search results [1][2]
+function parseBestMove(moveStr: string): {
+  from: string;
+  to: string;
+  promotion: string;
+} {
+  const match = moveStr.match(/^([a-h][1-8])([a-h][1-8])([qrbn])?$/);
+  if (!match) {
+    throw new Error(`Invalid move format: ${moveStr}`);
+  }
+  return {
+    from: match[1],
+    to: match[2],
+    promotion: match[3] || "",
+  };
+}
+
+async function getBestMove(
+  fen: string
+): Promise<{ from: string; to: string; promotion: string }> {
   return new Promise((resolve, reject) => {
-    const engine = spawn('stockfish');
-    engine.stdin.write('uci\n');
-    engine.stdin.write(`position fen ${fen}\n`);
-    engine.stdin.write('go depth 3\n');
+    const engine = spawn("stockfish");
+    let buffer = "";
+    let isReady = false;
+    const timeout = setTimeout(() => {
+      engine.kill();
+      reject("Stockfish timeout after 10 seconds");
+    }, 10000);
 
-    engine.stdout.on('data', (data) => {
-      const output = data.toString();
-      const match = output.match(/bestmove\s(\w+)/);
+    engine.stdin.write("uci\n");
+
+    engine.stdout.on("data", (data) => {
+      buffer += data.toString();
+
+      if (!isReady) {
+        if (buffer.includes("uciok")) {
+          isReady = true;
+          buffer = "";
+          engine.stdin.write(`position fen ${fen}\n`);
+          engine.stdin.write("go depth 15\n");
+        }
+        return;
+      }
+
+      const match = buffer.match(/bestmove\s(\w+)/);
       if (match) {
-        engine.kill();
-        resolve(match[1]);
+        clearTimeout(timeout);
+        engine.stdin.write("quit\n");
+        resolve(parseBestMove(match[1]));
       }
     });
 
-    engine.stderr.on('data', (err) => reject(err.toString()));
+    engine.stderr.on("data", (err) => {
+      clearTimeout(timeout);
+      reject(err.toString());
+    });
   });
 }
 
-export async function getBestMoveForPosition(fen: string): Promise<string> {
+// Update return type signature
+export async function getBestMoveForPosition(
+  fen: string
+): Promise<{ from: string; to: string; promotion: string }> {
   try {
     const bestMove = await getBestMove(fen);
     return bestMove;
   } catch (error) {
-    console.error('Error getting best move:', error);
+    console.error("Error getting best move:", error);
     throw error;
   }
 }

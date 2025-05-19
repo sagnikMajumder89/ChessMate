@@ -10,7 +10,7 @@ import { findGame } from "./lib/socket/findGame";
 import moveHandler from "./lib/socket/moveHandler";
 import { admin } from "./lib/firebase/firebaseAdmin";
 import { checkUser } from "./lib/socket/auth";
-import { setupGame } from "./lib/socket/botGame";
+import { handleMove, setupGame } from "./lib/socket/botGame";
 import { removeBotGameState } from "./lib/game/botGameState";
 const port = parseInt(process.env.PORT || "4000", 10);
 const dev = process.env.NODE_ENV !== "production";
@@ -65,6 +65,7 @@ app.prepare().then(() => {
     socket.on("move", (data) => moveHandler(io, socket, data));
     // TO DO: implement bot game
     socket.on("find-bot-game", (data) => setupGame(io, socket, data));
+    socket.on("bot-move", (data) => handleMove(io, socket, data));
     socket.on("disconnect", async () => {
       //TO DO: delete bot game also
       if (socket.data.gameId) {
