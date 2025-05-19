@@ -5,7 +5,7 @@ import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 
 type DialogsProps = {
-  setupGame: (level: any, color: any) => void;
+  setupGame: (level: number, color: string) => void;
 };
 
 export default function Dialogs({ setupGame }: DialogsProps) {

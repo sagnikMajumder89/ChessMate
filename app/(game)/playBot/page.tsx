@@ -9,7 +9,7 @@ import type { Socket } from "socket.io-client";
 import BotChessboard from "@/components/playBot/BotComponent/Chessboard";
 let socket: Socket | undefined;
 
-export default function page() {
+export default function Page() {
   const [gameFinding, setGameFinding] = useState(false);
   const [matchDetails, setMatchDetails] = useState(null);
   const [isConnected, setIsConnected] = useState(false);

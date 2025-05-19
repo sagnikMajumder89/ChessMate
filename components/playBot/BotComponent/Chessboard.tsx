@@ -6,7 +6,6 @@ import { useEffect, useState, useRef } from "react";
 import { toast } from "sonner";
 import {
   Dialog,
-  DialogTrigger,
   DialogContent,
   DialogHeader,
   DialogTitle,
@@ -29,7 +28,6 @@ type BotChessboardProps = {
 };
 
 export default function BotChessboard({ data, socket }: BotChessboardProps) {
-  // Use state for rendering and a ref for event handlers
   const [fen, setFen] = useState(data.fen);
   const gameRef = useRef(new Chess(data.fen));
   const [isGameOver, setIsGameOver] = useState(false);
@@ -71,7 +69,11 @@ export default function BotChessboard({ data, socket }: BotChessboardProps) {
   };
 
   useEffect(() => {
-    const handleBotMove = (move: any) => {
+    const handleBotMove = (move: {
+      from: string;
+      to: string;
+      promotion: string;
+    }) => {
       const { from, to, promotion } = move;
       try {
         const result = gameRef.current.move({
@@ -86,7 +88,7 @@ export default function BotChessboard({ data, socket }: BotChessboardProps) {
         } else {
           toast.error("Invalid bot move");
         }
-      } catch (error) {
+      } catch {
         toast.error("Bot move error");
       }
     };
@@ -126,7 +128,7 @@ export default function BotChessboard({ data, socket }: BotChessboardProps) {
           <DialogFooter className="mt-4">
             <Button
               className="px-4 py-2 rounded"
-              onClick={() => window.location.reload()} // or reset state
+              onClick={() => window.location.reload()}
             >
               Play Again
             </Button>
