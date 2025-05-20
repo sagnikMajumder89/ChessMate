@@ -4,11 +4,12 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/lib/auth/authContext";
-import { Toaster } from "@/components/ui/sonner"
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
   title: "ChessMate",
-  description: "Play chess with your friends online for free or against the computer.",
+  description:
+    "Play chess with your friends online for free or against the computer.",
 };
 
 export default function RootLayout({
@@ -29,7 +30,7 @@ export default function RootLayout({
             <SidebarProvider>
               <AppSidebar />
               <div className="flex flex-col min-h-screen w-full">
-                <SidebarTrigger />
+                <SidebarTrigger className="bg-transparent" />
                 {children}
               </div>
             </SidebarProvider>

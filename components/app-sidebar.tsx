@@ -39,7 +39,7 @@ import { useState } from "react";
 const items = [
   {
     title: "Play",
-    url: "/play",
+    url: "/",
     icon: "/icons/play.webp",
   },
   {
@@ -124,6 +124,7 @@ export function AppSidebar() {
           </SidebarMenu>
         </SidebarHeader>
         <SidebarContent>
+          {/* Main Menu */}
           <SidebarGroup>
             <SidebarGroupLabel>Game</SidebarGroupLabel>
             <SidebarGroupContent>
@@ -146,7 +147,7 @@ export function AppSidebar() {
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
-
+          {/* Support */}
           <SidebarGroup>
             <SidebarGroupLabel>Support</SidebarGroupLabel>
             <SidebarGroupContent>
@@ -164,7 +165,7 @@ export function AppSidebar() {
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
-
+          {/* User Menu */}
           {user ? (
             <SidebarGroup>
               <SidebarGroupLabel>User</SidebarGroupLabel>
@@ -208,7 +209,7 @@ export function AppSidebar() {
                   <SidebarMenuItem>
                     <SidebarMenuButton asChild>
                       <Button
-                        className="w-full gap-3"
+                        className="w-full gap-3 hover:bg-white/80 hover:text-black"
                         onClick={() => router.push("/login?tab=signup")}
                       >
                         <User className="w-5 h-5" />
@@ -220,6 +221,33 @@ export function AppSidebar() {
               </SidebarGroupContent>
             </SidebarGroup>
           )}
+          <div className="flex-grow" />
+          {/* Footer */}
+          <SidebarGroup>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <a
+                      href="/developer"
+                      className="relative flex items-center gap-3 h-fit p-[2px] rounded-lg bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 animate-border overflow-hidden"
+                    >
+                      <div className="flex items-center gap-3 bg-white dark:bg-black rounded-md px-2 py-1 w-full">
+                        <Image
+                          src="/developer.webp"
+                          alt="dev"
+                          width={40}
+                          height={40}
+                          className="rounded-full object-cover"
+                        />
+                        <span>Developer Info</span>
+                      </div>
+                    </a>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
         </SidebarContent>
       </Sidebar>
       <AlertDialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
