@@ -16,7 +16,7 @@ export default function Page() {
         className="flex flex-col items-center gap-6"
       >
         <h1 className="text-4xl md:text-6xl font-extrabold md:h-16 tracking-tight bg-gradient-to-r h-fit from-cyan-400 to-blue-600 bg-clip-text text-transparent animate-pulse">
-          Hi, I'm Sagnik Majumder
+          Hi, I&apos;m Sagnik Majumder
         </h1>
         <p className="text-lg md:text-2xl text-gray-300 max-w-xl text-center">
           Final year CS student at VIT Vellore.
