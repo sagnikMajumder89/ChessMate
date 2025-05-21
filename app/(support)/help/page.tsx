@@ -31,17 +31,15 @@ const faqs = [
   {
     question: "How do I start a new chess game?",
     answer:
-      "Navigate to the 'Play' section and choose between computer or online multiplayer modes.",
+      "Navigate to the 'Play' section and choose between bots or online with other players.",
   },
   {
     question: "Can I analyze my past games?",
-    answer:
-      "Yes, all your games are saved in the 'History' section where you can review and analyze them.",
+    answer: "We are working on this feature!",
   },
   {
     question: "What time controls are available?",
-    answer:
-      "We offer blitz, rapid, and classical time controls ranging from 1 minute to 60 minutes per player.",
+    answer: "You can choose from various time controls: 3 mins and 10 mins",
   },
 ];
 
@@ -96,18 +94,20 @@ export default function HelpPage() {
         <h2 className="text-xl font-semibold">Frequently Asked Questions</h2>
         <div className="space-y-2">
           {faqs.map((faq, index) => (
-            <Card key={index} className="p-4 rounded-xl">
-              <button
-                className="w-full text-left flex justify-between items-center"
-                onClick={() =>
-                  setActiveIndex(activeIndex === index ? null : index)
-                }
-              >
-                <span className="font-medium">{faq.question}</span>
-                <span className="text-2xl">
-                  {activeIndex === index ? "-" : "+"}
-                </span>
-              </button>
+            <Card
+              key={index}
+              className={
+                `flex w-full p-3 cursor-pointer hover:bg-muted transition-colors ` +
+                (activeIndex === index
+                  ? "flex-col items-start"
+                  : "flex-row justify-between items-center")
+              }
+              onClick={() =>
+                setActiveIndex(activeIndex === index ? null : index)
+              }
+            >
+              <span className="font-medium">{faq.question}</span>
+              {activeIndex !== index && <span className="text-2xl">+</span>}
               {activeIndex === index && (
                 <motion.p
                   className="pt-2 text-muted-foreground"
@@ -153,9 +153,7 @@ export default function HelpPage() {
                 <Clock className="w-6 h-6 text-primary" />
                 <div>
                   <h3 className="font-semibold">Response Time</h3>
-                  <p className="text-muted-foreground">
-                    Typically within 12 hours
-                  </p>
+                  <p className="text-muted-foreground">As quick as possible</p>
                 </div>
               </div>
             </Card>
@@ -167,7 +165,7 @@ export default function HelpPage() {
               <Alert>
                 <AlertTitle>Message Sent!</AlertTitle>
                 <AlertDescription>
-                  We&apos;ll respond to your inquiry within 12 hours
+                  We&apos;ll respond to your inquiry as soon as possible.
                 </AlertDescription>
               </Alert>
             )}

@@ -74,7 +74,7 @@ app.prepare().then(() => {
       if (socket.data.matchKey && socket.data.matchEntry) {
         await redis.zrem(socket.data.matchKey, socket.data.matchEntry);
       }
-      logger.info("User disconnected:", socket.id);
+      logger.info(`User disconnected: + ${socket.id}`);
     });
   });
 
