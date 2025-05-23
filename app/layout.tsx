@@ -1,16 +1,11 @@
-import type { Metadata } from "next";
+"use client";
 import "./globals.css";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/lib/auth/authContext";
 import { Toaster } from "@/components/ui/sonner";
-
-export const metadata: Metadata = {
-  title: "ChessMate",
-  description:
-    "Play chess with your friends online for free or against the computer.",
-};
+import NonSidebarBranding from "@/components/non-sidebar-branding";
 
 export default function RootLayout({
   children,
@@ -30,7 +25,7 @@ export default function RootLayout({
             <SidebarProvider>
               <AppSidebar />
               <div className="flex flex-col min-h-screen w-full">
-                <SidebarTrigger className="bg-transparent" />
+                <NonSidebarBranding />
                 {children}
               </div>
             </SidebarProvider>
