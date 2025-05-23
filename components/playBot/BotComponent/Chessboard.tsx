@@ -174,7 +174,7 @@ export default function BotChessboard({ data, socket }: BotChessboardProps) {
       />
 
       {/* Game Over Dialog */}
-      <Dialog open={isGameOver}>
+      <Dialog open={isGameOver} onOpenChange={() => window.location.reload()}>
         <DialogContent className="text-center">
           <DialogHeader>
             <DialogTitle className="text-2xl">Game Over</DialogTitle>

@@ -74,7 +74,7 @@ const Play = () => {
     };
   }, [user]);
   return (
-    <div className="w-full">
+    <div className="w-full h-full">
       {isConnected ? (
         <>
           {matchDetails ? (

@@ -184,7 +184,7 @@ export default function Chessboard({ matchDetails, socket }: ChessboardProps) {
       </div>
       <MenuSection />
       {/* Game Over Dialog */}
-      <Dialog open={isGameOver}>
+      <Dialog open={isGameOver} onOpenChange={() => window.location.reload()}>
         <DialogContent className="text-center">
           <DialogHeader>
             <DialogTitle className="text-2xl">Game Over</DialogTitle>
