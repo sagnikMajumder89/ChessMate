@@ -1,7 +1,7 @@
 "use client";
 import { Chessboard } from "react-chessboard";
 import { Socket } from "socket.io-client";
-import { Chess } from "chess.js";
+import { Chess, Square } from "chess.js";
 import { useEffect, useState, useRef } from "react";
 import { toast } from "sonner";
 import {
@@ -30,6 +30,12 @@ type BotChessboardProps = {
 export default function BotChessboard({ data, socket }: BotChessboardProps) {
   const [fen, setFen] = useState(data.fen);
   const gameRef = useRef(new Chess(data.fen));
+  const [selectedSquare, setSelectedSquare] = useState<string | null>(null);
+  const [legalMoves, setLegalMoves] = useState<string[]>([]);
+  const [squareStyles, setSquareStyles] = useState<
+    Record<string, React.CSSProperties>
+  >({});
+
   const [isGameOver, setIsGameOver] = useState(false);
   const [winner, setWinner] = useState<"draw" | "white" | "black" | null>(null);
 
@@ -66,6 +72,57 @@ export default function BotChessboard({ data, socket }: BotChessboardProps) {
       toast.error("Invalid move");
       return false;
     }
+  };
+
+  const onSquareClick = (square: string) => {
+    const game = gameRef.current;
+
+    if (selectedSquare && legalMoves.includes(square)) {
+      const move = game.move({
+        from: selectedSquare,
+        to: square,
+        promotion: "q",
+      });
+
+      if (move) {
+        setFen(game.fen());
+        setSelectedSquare(null);
+        setLegalMoves([]);
+        setSquareStyles({});
+        checkGameOver();
+        socket.emit("bot-move", move);
+      } else {
+        toast.error("Invalid move");
+      }
+      return;
+    }
+
+    const moves = game.moves({ square: square as Square, verbose: true });
+
+    if (moves.length === 0) {
+      setSelectedSquare(null);
+      setLegalMoves([]);
+      setSquareStyles({});
+      return;
+    }
+
+    const newLegalMoves = moves.map((m) => m.to);
+    const highlightStyles: Record<string, React.CSSProperties> = {};
+    highlightStyles[square] = { backgroundColor: "#e0e0e0" };
+    newLegalMoves.forEach((sq) => {
+      highlightStyles[sq] = {
+        backgroundColor: "rgba(25,31,36,0.1)",
+        backgroundImage:
+          "radial-gradient(circle, #808080 40%, transparent 20%)",
+        backgroundPosition: "center",
+        backgroundSize: "50% 50%",
+        backgroundRepeat: "no-repeat",
+      };
+    });
+
+    setSelectedSquare(square);
+    setLegalMoves(newLegalMoves);
+    setSquareStyles(highlightStyles);
   };
 
   useEffect(() => {
@@ -109,6 +166,8 @@ export default function BotChessboard({ data, socket }: BotChessboardProps) {
           !isGameOver && gameRef.current.turn() === data.color
         }
         onPieceDrop={onDrop}
+        customSquareStyles={squareStyles}
+        onSquareClick={onSquareClick}
       />
 
       {/* Game Over Dialog */}

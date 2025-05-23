@@ -52,8 +52,8 @@ export default function Page() {
     return <Connecting />;
   }
   return (
-    <div className="flex flex-row items-center justify-center h-full ml-6">
-      <div className="w-2/3">
+    <div className="flex flex-col lg:flex-row items-center justify-center h-full px-2">
+      <div className="w-full lg:w-2/3">
         {matchDetails ? (
           <BotChessboard data={matchDetails} socket={socket!} />
         ) : (
