@@ -65,6 +65,9 @@ export default function BotChessboard({ data, socket }: BotChessboardProps) {
 
       // Update FEN state for rendering
       setFen(gameRef.current.fen());
+      setSelectedSquare(null);
+      setLegalMoves([]);
+      setSquareStyles({});
       checkGameOver();
       socket.emit("bot-move", move);
       return true;
