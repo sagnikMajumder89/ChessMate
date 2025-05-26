@@ -14,6 +14,7 @@ export default function Page() {
   const [gameFinding, setGameFinding] = useState(false);
   const [matchDetails, setMatchDetails] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
+  const [boardOrientation, setBoardOrientation] = useState<"w" | "b">("w");
   const { user } = useAuth();
 
   const setupGame = (level, color) => {
@@ -41,6 +42,7 @@ export default function Page() {
         socket.on("bot-game-started", (data) => {
           setGameFinding(false);
           setMatchDetails(data);
+          setBoardOrientation(data.color);
         });
       } else {
         console.error("Socket is null");
@@ -56,7 +58,11 @@ export default function Page() {
     <div className="flex flex-col lg:flex-row items-center justify-center h-full px-2">
       <div className="w-full lg:w-1/2">
         {matchDetails ? (
-          <BotChessboard data={matchDetails} socket={socket!} />
+          <BotChessboard
+            data={matchDetails}
+            socket={socket!}
+            boardOrientation={boardOrientation}
+          />
         ) : (
           <Chessboard arePiecesDraggable={false} />
         )}
@@ -66,7 +72,7 @@ export default function Page() {
         {gameFinding ? (
           <Connecting />
         ) : matchDetails ? (
-          <GameComponent />
+          <GameComponent setBoardOrientation={setBoardOrientation} />
         ) : (
           <Dialogs setupGame={setupGame} />
         )}

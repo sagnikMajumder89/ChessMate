@@ -1,5 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import GameComponent from "@/components/play/GameComponents/GameComponent";
+import BotGameComponent from "@/components/playBot/Dialogs/BotGameComponent";
 import PlayerComponent from "@/components/play/GameComponents/PlayerComponent";
 
 const moves = ["a1 a2", "a1 a3", "a1 a4", "a1 a5"];
@@ -9,7 +9,13 @@ const players = Array.from({ length: 26 }, (_, i) => ({
   rating: 1200 + i * 100,
 }));
 
-export default function GameComponentb() {
+interface GameComponentProps {
+  setBoardOrientation: React.Dispatch<React.SetStateAction<"w" | "b">>;
+}
+
+export default function GameComponentb({
+  setBoardOrientation,
+}: GameComponentProps) {
   return (
     <div className="md:p-5 rounded-2xl bg-background shadow-md border w-full">
       <Tabs defaultValue="game" className="w-full">
@@ -23,7 +29,10 @@ export default function GameComponentb() {
 
         {/* Game Moves Section */}
         <TabsContent value="game">
-          <GameComponent moves={moves} />
+          <BotGameComponent
+            moves={moves}
+            setBoardOrientation={setBoardOrientation}
+          />
         </TabsContent>
 
         {/* Players List Section */}

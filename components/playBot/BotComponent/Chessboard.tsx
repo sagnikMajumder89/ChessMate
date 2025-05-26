@@ -26,9 +26,14 @@ type Data = {
 type BotChessboardProps = {
   data: Data;
   socket: Socket;
+  boardOrientation: "w" | "b";
 };
 
-export default function BotChessboard({ data, socket }: BotChessboardProps) {
+export default function BotChessboard({
+  data,
+  socket,
+  boardOrientation,
+}: BotChessboardProps) {
   const [fen, setFen] = useState(data.fen);
   const gameRef = useRef(new Chess(data.fen));
   const [selectedSquare, setSelectedSquare] = useState<string | null>(null);
@@ -163,14 +168,22 @@ export default function BotChessboard({ data, socket }: BotChessboardProps) {
 
   return (
     <div>
-      <PlayerDetails
-        name="BOT"
-        photo="/icons/magnus_bot.webp"
-        rating={data.level}
-      />
+      {boardOrientation !== data.color ? (
+        <PlayerDetails
+          name="Player"
+          photo="/icons/player_avatar.webp"
+          rating={data.level}
+        />
+      ) : (
+        <PlayerDetails
+          name="BOT"
+          photo="/icons/magnus_bot.webp"
+          rating={data.level}
+        />
+      )}
       <Chessboard
         position={fen}
-        boardOrientation={data.color === "w" ? "white" : "black"}
+        boardOrientation={boardOrientation === "w" ? "white" : "black"}
         arePiecesDraggable={
           !isGameOver && gameRef.current.turn() === data.color
         }
@@ -178,11 +191,19 @@ export default function BotChessboard({ data, socket }: BotChessboardProps) {
         customSquareStyles={squareStyles}
         onSquareClick={onSquareClick}
       />
-      <PlayerDetails
-        name="Player"
-        photo="/icons/player_avatar.webp"
-        rating={data.level}
-      />
+      {boardOrientation === data.color ? (
+        <PlayerDetails
+          name="Player"
+          photo="/icons/player_avatar.webp"
+          rating={data.level}
+        />
+      ) : (
+        <PlayerDetails
+          name="BOT"
+          photo="/icons/magnus_bot.webp"
+          rating={data.level}
+        />
+      )}
 
       {/* Game Over Dialog */}
       <Dialog open={isGameOver} onOpenChange={() => window.location.reload()}>

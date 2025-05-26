@@ -1,10 +1,23 @@
+// import ChatComponent from "./ChatComponent";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import ChatComponent from "./ChatComponent";
 import { Button } from "@/components/ui/button";
 import { IoFlag } from "react-icons/io5";
 import { FlipVertical } from "lucide-react";
 
-export default function GameComponent({ moves }: { moves: string[] }) {
+interface BotGameComponentProps {
+  moves: string[];
+  setBoardOrientation: React.Dispatch<React.SetStateAction<"w" | "b">>;
+}
+
+export default function BotGameComponent({
+  moves,
+  setBoardOrientation,
+}: BotGameComponentProps) {
+  // Function to handle board orientation change
+  const handleFlipBoard = () => {
+    setBoardOrientation((prev) => (prev === "w" ? "b" : "w"));
+  };
+
   return (
     <div className="flex flex-col items-start px-3 py-4">
       <h2 className="text-lg font-semibold">Moves List</h2>
@@ -21,13 +34,17 @@ export default function GameComponent({ moves }: { moves: string[] }) {
         <Button variant="destructive" className="flex items-center gap-2">
           <IoFlag className="w-5 h-5" /> Resign
         </Button>
-        <Button variant="outline" className="flex items-center gap-2">
+        <Button
+          onClick={handleFlipBoard}
+          variant="outline"
+          className="flex items-center gap-2"
+        >
           <FlipVertical className="w-5 h-5" /> Flip Board
         </Button>
       </div>
 
       {/* Chat Component */}
-      <ChatComponent />
+      {/* <ChatComponent /> */}
     </div>
   );
 }
