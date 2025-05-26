@@ -12,6 +12,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import PlayerDetails from "../Dialogs/PlayerDetails";
 
 type Data = {
   color: string;
@@ -161,7 +162,12 @@ export default function BotChessboard({ data, socket }: BotChessboardProps) {
   }, [socket]);
 
   return (
-    <>
+    <div>
+      <PlayerDetails
+        name="BOT"
+        photo="/icons/magnus_bot.webp"
+        rating={data.level}
+      />
       <Chessboard
         position={fen}
         boardOrientation={data.color === "w" ? "white" : "black"}
@@ -171,6 +177,11 @@ export default function BotChessboard({ data, socket }: BotChessboardProps) {
         onPieceDrop={onDrop}
         customSquareStyles={squareStyles}
         onSquareClick={onSquareClick}
+      />
+      <PlayerDetails
+        name="Player"
+        photo="/icons/player_avatar.webp"
+        rating={data.level}
       />
 
       {/* Game Over Dialog */}
@@ -197,6 +208,6 @@ export default function BotChessboard({ data, socket }: BotChessboardProps) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   );
 }

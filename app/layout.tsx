@@ -24,7 +24,7 @@ export default function RootLayout({
           <AuthProvider>
             <SidebarProvider>
               <AppSidebar />
-              <div className="flex flex-col min-h-screen w-full">
+              <div className="flex flex-col w-full">
                 <NonSidebarBranding />
                 {children}
               </div>

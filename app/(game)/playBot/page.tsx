@@ -7,6 +7,7 @@ import { useAuth } from "@/lib/auth/authContext";
 import { getSocket } from "@/config/socketClient";
 import type { Socket } from "socket.io-client";
 import BotChessboard from "@/components/playBot/BotComponent/Chessboard";
+import GameComponent from "@/components/playBot/Dialogs/GameComponent";
 let socket: Socket | undefined;
 
 export default function Page() {
@@ -53,7 +54,7 @@ export default function Page() {
   }
   return (
     <div className="flex flex-col lg:flex-row items-center justify-center h-full px-2">
-      <div className="w-full lg:w-2/3">
+      <div className="w-full lg:w-1/2">
         {matchDetails ? (
           <BotChessboard data={matchDetails} socket={socket!} />
         ) : (
@@ -61,11 +62,11 @@ export default function Page() {
         )}
       </div>
 
-      <div className="w-1/2">
+      <div className="lg:w-1/2">
         {gameFinding ? (
           <Connecting />
         ) : matchDetails ? (
-          <div>Game connected</div>
+          <GameComponent />
         ) : (
           <Dialogs setupGame={setupGame} />
         )}
