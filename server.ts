@@ -12,6 +12,7 @@ import { admin } from "./lib/firebase/firebaseAdmin";
 import { checkUser } from "./lib/socket/auth";
 import { handleMove, setupGame } from "./lib/socket/botGame";
 import { removeBotGameState } from "./lib/game/botGameState";
+import disconnect from "./lib/socket/disconnect";
 const port = parseInt(process.env.PORT || "4000", 10);
 const dev = process.env.NODE_ENV !== "production";
 const app = next({ dev });
@@ -61,19 +62,14 @@ app.prepare().then(() => {
     }
   });
   io.on("connection", (socket) => {
+    logger.info(`User connected: ${socket.id}`);
     socket.on("find-game", (data) => findGame(io, socket, data));
     socket.on("move", (data) => moveHandler(io, socket, data));
     // TO DO: implement bot game
     socket.on("find-bot-game", (data) => setupGame(io, socket, data));
     socket.on("bot-move", (data) => handleMove(io, socket, data));
     socket.on("disconnect", async () => {
-      //TO DO: delete bot game also
-      if (socket.data.gameId) {
-        await removeBotGameState(socket.data.gameId);
-      }
-      if (socket.data.matchKey && socket.data.matchEntry) {
-        await redis.zrem(socket.data.matchKey, socket.data.matchEntry);
-      }
+      await disconnect(socket);
       logger.info(`User disconnected: + ${socket.id}`);
     });
   });

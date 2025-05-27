@@ -1,197 +1,232 @@
-import { getGameState, getGameStateByUser, moveGameToDB, saveGameState } from '@/lib/game/gameState';
-import { v4 as uuidv4 } from 'uuid';
-import redis from '@/lib/db/redis'
+import {
+  getGameState,
+  getGameStateByUser,
+  moveGameToDB,
+  saveGameState,
+} from "@/lib/game/gameState";
+import { v4 as uuidv4 } from "uuid";
+import redis from "@/lib/db/redis";
 import { Server, Socket } from "socket.io";
 
 const RATING_THRESHOLD = 100;
 
 interface MatchmakingEntry {
-    time: number;
-    increment: number;
-    rated: boolean;
+  time: number;
+  increment: number;
+  rated: boolean;
 }
 
 interface User {
-    id: string;
-    uid: string;
-    email: string;
-    rating: number;
-    photo: string;
+  id: string;
+  uid: string;
+  email: string;
+  rating: number;
+  photo: string;
 }
 
 interface StoredEntry {
-    socketId: string;
-    id: string;
-    uid: string;
-    email: string;
-    rating: number;
-    photo: string;
+  socketId: string;
+  id: string;
+  uid: string;
+  email: string;
+  rating: number;
+  photo: string;
 }
 
+export const findGame = async (
+  io: Server,
+  socket: Socket,
+  settings: MatchmakingEntry
+) => {
+  const user: User = socket.data.user;
+  const currGame = await getGameStateByUser(user.uid);
+  if (currGame) {
+    const isWhite = currGame.players.white.uid === user.uid;
+    const opponent = isWhite ? currGame.players.black : currGame.players.white;
+    const you = isWhite ? currGame.players.white : currGame.players.black;
 
-export const findGame = async (io: Server, socket: Socket, settings: MatchmakingEntry) => {
-    const user: User = socket.data.user;
-    const currGame = await getGameStateByUser(user.uid);
-    if (currGame) {
-        const opponent = currGame.players.white.uid === user.uid ? currGame.players.black : currGame.players.white;
-        const you = currGame.players.white.uid === user.uid ? currGame.players.white : currGame.players.black;
-        socket.data.gameId = currGame.gameId;
-        socket.join(currGame.gameId);
-        io.to(socket.id).emit("match-found", {
-            id: currGame.gameId,
-            user: you,
-            opponent,
-            fen: currGame.boardState,
-            moves: currGame.moves,
-            currentTurn: currGame.currentTurn,
-            rated: currGame.rated,
-            increment: currGame.increment
-        });
-        return;
-    }
-    const matchKey = `matchmaking:${settings.time}:${settings.increment}:${settings.rated}`;
-    socket.data.matchKey = matchKey;
-
-    const minRating = user.rating - RATING_THRESHOLD;
-    const maxRating = user.rating + RATING_THRESHOLD;
-
-    const potentialMatches = await redis.zrangebyscore(matchKey, minRating, maxRating);
-
-    if (potentialMatches.length > 0) {
-
-        const matchedEntryStr = potentialMatches[0];
-        await redis.zrem(matchKey, matchedEntryStr);
-        const matchedEntry: StoredEntry = JSON.parse(matchedEntryStr);
-
-        const newGameId = uuidv4();
-        const initialFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-        const initialMoves: object[] = [];
-        const initialTurn: "w" | "b" = "w";
-        const white = {
-            id: user.id,
-            uid: user.uid,
-            email: user.email,
-            rating: user.rating,
-            baseTime: settings.time,
-            color: "w" as "w" | "b",
-            timeConsumed: 0,
-            photo: user.photo,
-        }
-        const black = {
-            id: matchedEntry.id,
-            uid: matchedEntry.uid,
-            email: matchedEntry.email,
-            rating: matchedEntry.rating,
-            baseTime: settings.time,
-            color: "b" as "w" | "b",
-            timeConsumed: 0,
-            photo: matchedEntry.photo,
-        }
-        delete socket.data.matchKey;
-        delete socket.data.matchEntry;
-        socket.data.gameId = newGameId;
-        socket.join(newGameId);
-        const matchedSocket = io.sockets.sockets.get(matchedEntry.socketId);
-        if (matchedSocket) {
-            delete matchedSocket.data.matchKey;
-            delete matchedSocket.data.matchEntry;
-            matchedSocket.data.gameId = newGameId;
-            matchedSocket.join(newGameId);
-        }
-        io.to(socket.id).emit("match-found", {
-            id: newGameId,
-            user: white,
-            opponent: black,
-            fen: initialFen,
-            moves: initialMoves,
-            currentTurn: initialTurn,
-            rated: settings.rated,
-            increment: settings.increment
-        });
-
-
-        io.to(matchedEntry.socketId).emit("match-found", {
-            id: newGameId,
-            user: black,
-            opponent: white,
-            fen: initialFen,
-            moves: initialMoves,
-            currentTurn: initialTurn,
-            rated: settings.rated,
-            increment: settings.increment
-        });
-
-        await saveGameState({
-            gameId: newGameId,
-            players: {
-                white,
-                black
-            },
-            boardState: initialFen,
-            moves: initialMoves,
-            status: "waiting",
-            currentTurn: initialTurn,
-            lastMoveTimestamp: Date.now(),
-            rated: settings.rated,
-            increment: settings.increment,
-            createdAt: Date.now(),
-            updatedAt: Date.now(),
-        });
-        let cnt = 0;
-        const intervalId = setInterval(async () => {
-            const game = await getGameState(newGameId);
-            if (!game) return;
-            const now = Date.now();
-            const timeElapsed = now - game.lastMoveTimestamp;
-            if (game.currentTurn === "w") {
-                if (game.players.white.timeConsumed + timeElapsed >= game.players.white.baseTime * 1000) {
-                    socket.to(newGameId).emit("gameOver", "Time's up!");
-                    game.players.white.timeConsumed = game.players.white.baseTime * 1000 + 1000;
-                    game.status = "finished";
-                    await saveGameState(game);
-                    await moveGameToDB(newGameId);
-                    clearInterval(intervalId);
-                    return;
-                }
-                game.players.white.timeConsumed += timeElapsed;
-            } else {
-                if (game.players.black.timeConsumed + timeElapsed > game.players.black.baseTime * 1000) {
-
-                    socket.to(newGameId).emit("gameOver", "Time's up!");
-                    game.players.black.timeConsumed = game.players.black.baseTime * 1000 + 1000;
-                    game.status = "finished";
-                    await moveGameToDB(newGameId);
-                    await saveGameState(game);
-                    clearInterval(intervalId);
-                    return;
-                }
-
-                game.players.black.timeConsumed += timeElapsed;
-            }
-            if (cnt > 3) {
-                io.to(newGameId).emit("time-sync", {
-                    "w": game.players.white.timeConsumed,
-                    "b": game.players.black.timeConsumed,
-                });
-                cnt = 0;
-            } else {
-                cnt++;
-            }
-            game.lastMoveTimestamp = now;
-            await saveGameState(game);
-        }, 1000);
+    if (isWhite) {
+      currGame.players.white.online = true;
     } else {
-
-        const entry: StoredEntry = {
-            socketId: socket.id,
-            id: user.id,
-            uid: user.uid,
-            email: user.email,
-            rating: user.rating,
-            photo: user.photo,
-        };
-        const entryStr = JSON.stringify(entry);
-        socket.data.matchEntry = entryStr;
-        await redis.zadd(matchKey, user.rating, entryStr);
+      currGame.players.black.online = true;
     }
-}
+    await saveGameState(currGame);
+    socket.data.gameId = currGame.gameId;
+    socket.data.uid = user.uid;
+    // Mark the user as online in the game state
+
+    delete socket.data.matchKey;
+    delete socket.data.matchEntry;
+    socket.join(currGame.gameId);
+    io.to(socket.id).emit("match-found", {
+      id: currGame.gameId,
+      user: you,
+      opponent,
+      fen: currGame.boardState,
+      moves: currGame.moves,
+      currentTurn: currGame.currentTurn,
+      rated: currGame.rated,
+      increment: currGame.increment,
+    });
+    return;
+  }
+  const matchKey = `matchmaking:${settings.time}:${settings.increment}:${settings.rated}`;
+  socket.data.matchKey = matchKey;
+
+  const minRating = user.rating - RATING_THRESHOLD;
+  const maxRating = user.rating + RATING_THRESHOLD;
+
+  const potentialMatches = await redis.zrangebyscore(
+    matchKey,
+    minRating,
+    maxRating
+  );
+
+  if (potentialMatches.length > 0) {
+    const matchedEntryStr = potentialMatches[0];
+    await redis.zrem(matchKey, matchedEntryStr);
+    const matchedEntry: StoredEntry = JSON.parse(matchedEntryStr);
+
+    const newGameId = uuidv4();
+    const initialFen =
+      "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+    const initialMoves: object[] = [];
+    const initialTurn: "w" | "b" = "w";
+    const white = {
+      id: user.id,
+      uid: user.uid,
+      email: user.email,
+      online: true,
+      rating: user.rating,
+      baseTime: settings.time,
+      color: "w" as "w" | "b",
+      timeConsumed: 0,
+      photo: user.photo,
+    };
+    const black = {
+      id: matchedEntry.id,
+      uid: matchedEntry.uid,
+      email: matchedEntry.email,
+      online: true,
+      rating: matchedEntry.rating,
+      baseTime: settings.time,
+      color: "b" as "w" | "b",
+      timeConsumed: 0,
+      photo: matchedEntry.photo,
+    };
+    delete socket.data.matchKey;
+    delete socket.data.matchEntry;
+    socket.data.gameId = newGameId;
+    socket.data.uid = user.uid;
+    socket.join(newGameId);
+    const matchedSocket = io.sockets.sockets.get(matchedEntry.socketId);
+    if (matchedSocket) {
+      delete matchedSocket.data.matchKey;
+      delete matchedSocket.data.matchEntry;
+      matchedSocket.data.gameId = newGameId;
+      matchedSocket.data.uid = matchedEntry.uid;
+      matchedSocket.join(newGameId);
+    }
+    io.to(socket.id).emit("match-found", {
+      id: newGameId,
+      user: white,
+      opponent: black,
+      fen: initialFen,
+      moves: initialMoves,
+      currentTurn: initialTurn,
+      rated: settings.rated,
+      increment: settings.increment,
+    });
+
+    io.to(matchedEntry.socketId).emit("match-found", {
+      id: newGameId,
+      user: black,
+      opponent: white,
+      fen: initialFen,
+      moves: initialMoves,
+      currentTurn: initialTurn,
+      rated: settings.rated,
+      increment: settings.increment,
+    });
+
+    await saveGameState({
+      gameId: newGameId,
+      players: {
+        white,
+        black,
+      },
+      boardState: initialFen,
+      moves: initialMoves,
+      status: "waiting",
+
+      currentTurn: initialTurn,
+      lastMoveTimestamp: Date.now(),
+      rated: settings.rated,
+      increment: settings.increment,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    });
+    let cnt = 0;
+    const intervalId = setInterval(async () => {
+      const game = await getGameState(newGameId);
+      if (!game) return;
+      const now = Date.now();
+      const timeElapsed = now - game.lastMoveTimestamp;
+      if (game.currentTurn === "w") {
+        if (
+          game.players.white.timeConsumed + timeElapsed >=
+          game.players.white.baseTime * 1000
+        ) {
+          socket.to(newGameId).emit("gameOver", "Time's up!");
+          game.players.white.timeConsumed =
+            game.players.white.baseTime * 1000 + 1000;
+          game.status = "finished";
+          await saveGameState(game);
+          await moveGameToDB(newGameId);
+          clearInterval(intervalId);
+          return;
+        }
+        game.players.white.timeConsumed += timeElapsed;
+      } else {
+        if (
+          game.players.black.timeConsumed + timeElapsed >
+          game.players.black.baseTime * 1000
+        ) {
+          socket.to(newGameId).emit("gameOver", "Time's up!");
+          game.players.black.timeConsumed =
+            game.players.black.baseTime * 1000 + 1000;
+          game.status = "finished";
+          await moveGameToDB(newGameId);
+          await saveGameState(game);
+          clearInterval(intervalId);
+          return;
+        }
+
+        game.players.black.timeConsumed += timeElapsed;
+      }
+      if (cnt > 3) {
+        io.to(newGameId).emit("time-sync", {
+          w: game.players.white.timeConsumed,
+          b: game.players.black.timeConsumed,
+        });
+        cnt = 0;
+      } else {
+        cnt++;
+      }
+      game.lastMoveTimestamp = now;
+      await saveGameState(game);
+    }, 1000);
+  } else {
+    const entry: StoredEntry = {
+      socketId: socket.id,
+      id: user.id,
+      uid: user.uid,
+      email: user.email,
+      rating: user.rating,
+      photo: user.photo,
+    };
+    const entryStr = JSON.stringify(entry);
+    socket.data.matchEntry = entryStr;
+    await redis.zadd(matchKey, user.rating, entryStr);
+  }
+};
