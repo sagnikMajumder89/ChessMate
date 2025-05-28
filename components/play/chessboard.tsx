@@ -148,8 +148,8 @@ export default function Chessboard({ matchDetails, socket }: ChessboardProps) {
   const lastMoveStyles =
     lastMove != null
       ? {
-          [lastMove.from]: { backgroundColor: "rgba(255, 255, 0, 0.6)" },
-          [lastMove.to]: { backgroundColor: "rgba(255, 255, 0, 0.6)" },
+          [lastMove.from]: { backgroundColor: "rgba(255, 255, 0, 0.4)" },
+          [lastMove.to]: { backgroundColor: "rgba(255, 255, 0, 0.4)" },
         }
       : {};
 

@@ -13,6 +13,8 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import PlayerDetails from "../Dialogs/PlayerDetails";
+import { Move } from "@/lib/interfaces";
+import { set } from "react-hook-form";
 
 type Data = {
   color: string;
@@ -20,7 +22,7 @@ type Data = {
   fen: string;
   id: string;
   level: number;
-  moves: string[];
+  moves: Move[];
 };
 
 type BotChessboardProps = {
@@ -38,6 +40,14 @@ export default function BotChessboard({
   const gameRef = useRef(new Chess(data.fen));
   const [selectedSquare, setSelectedSquare] = useState<string | null>(null);
   const [legalMoves, setLegalMoves] = useState<string[]>([]);
+  const [lastMove, setLastMove] = useState<{ from: string; to: string } | null>(
+    data.moves.length > 0
+      ? {
+          from: data.moves.at(-1)!.from,
+          to: data.moves.at(-1)!.to,
+        }
+      : null
+  );
   const [squareStyles, setSquareStyles] = useState<
     Record<string, React.CSSProperties>
   >({});
@@ -71,6 +81,7 @@ export default function BotChessboard({
 
       // Update FEN state for rendering
       setFen(gameRef.current.fen());
+      setLastMove({ from: move.from, to: move.to });
       setSelectedSquare(null);
       setLegalMoves([]);
       setSquareStyles({});
@@ -95,6 +106,7 @@ export default function BotChessboard({
 
       if (move) {
         setFen(game.fen());
+        setLastMove({ from: move.from, to: move.to });
         setSelectedSquare(null);
         setLegalMoves([]);
         setSquareStyles({});
@@ -166,6 +178,19 @@ export default function BotChessboard({
     };
   }, [socket]);
 
+  const lastMoveStyles =
+    lastMove != null
+      ? {
+          [lastMove.from]: { backgroundColor: "rgba(255, 255, 0, 0.4)" },
+          [lastMove.to]: { backgroundColor: "rgba(255, 255, 0, 0.4)" },
+        }
+      : {};
+
+  const mergedSquareStyles = {
+    ...squareStyles,
+    ...lastMoveStyles,
+  };
+
   return (
     <div>
       {boardOrientation !== data.color ? (
@@ -188,7 +213,7 @@ export default function BotChessboard({
           !isGameOver && gameRef.current.turn() === data.color
         }
         onPieceDrop={onDrop}
-        customSquareStyles={squareStyles}
+        customSquareStyles={mergedSquareStyles}
         onSquareClick={onSquareClick}
       />
       {boardOrientation === data.color ? (
