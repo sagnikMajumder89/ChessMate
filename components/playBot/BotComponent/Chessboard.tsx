@@ -14,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import PlayerDetails from "../Dialogs/PlayerDetails";
 import { Move } from "@/lib/interfaces";
+import { set } from "react-hook-form";
 
 type Data = {
   color: string;
@@ -161,6 +162,7 @@ export default function BotChessboard({
 
         if (result) {
           setFen(gameRef.current.fen());
+          setLastMove({ from, to });
           checkGameOver();
         } else {
           toast.error("Invalid bot move");
