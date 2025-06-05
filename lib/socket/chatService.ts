@@ -1,4 +1,4 @@
-import { Server, Socket } from "socket.io";
+import {  Socket } from "socket.io";
 import {
   addChatMessage,
   createNewChat,
@@ -6,7 +6,11 @@ import {
 } from "../services/chatState";
 import { logger } from "../logger";
 
-export const handleChatConnect = async (socket: Socket, data: any) => {
+type Data1 = {
+  gameId: string;
+}
+
+export const handleChatConnect = async (socket: Socket, data: Data1) => {
   const { gameId } = data;
 
   if (!gameId) {
@@ -26,7 +30,12 @@ export const handleChatConnect = async (socket: Socket, data: any) => {
   }
 };
 
-export const handleNewMessage = async (socket: Socket, data: any) => {
+type Data2 = {
+  gameId: string;
+  message: string;
+}
+
+export const handleNewMessage = async (socket: Socket, data: Data2) => {
   const { gameId, message } = data;
 
   if (!gameId || !message) {
@@ -46,7 +55,7 @@ export const handleNewMessage = async (socket: Socket, data: any) => {
   }
 };
 
-export const initSendChat = async (socket: Socket, data: any) => {
+export const initSendChat = async (socket: Socket, data: Data1) => {
   const { gameId } = data;
   if (!gameId) {
     socket.emit("message-error", "Game ID is required to initialize chat");

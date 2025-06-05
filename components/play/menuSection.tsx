@@ -4,8 +4,6 @@ import GameComponent from "./GameComponents/GameComponent";
 import { Socket } from "socket.io-client";
 import { Move } from "@/lib/interfaces";
 
-const moves = ["a1 a2", "a1 a3", "a1 a4", "a1 a5"];
-
 interface MenuSectionProps {
   gameId: string;
   socket: Socket;
