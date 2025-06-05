@@ -177,7 +177,7 @@ export const findGame = async (
           game.players.white.timeConsumed + timeElapsed >=
           game.players.white.baseTime * 1000
         ) {
-          socket.to(newGameId).emit("gameOver", "Time's up!");
+          socket.to(newGameId).emit("game-over", "Time's up!");
           game.players.white.timeConsumed =
             game.players.white.baseTime * 1000 + 1000;
           game.status = "finished";
