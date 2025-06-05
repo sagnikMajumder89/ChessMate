@@ -1,7 +1,7 @@
-import { getGameState, saveGameState } from "@/lib/game/botGameState";
+import { getGameState, saveGameState } from "@/lib/services/botGameState";
 import { v4 as uuidv4 } from "uuid";
 import { Server, Socket } from "socket.io";
-import { getBestMoveForPosition } from "../game/botService";
+import { getBestMoveForPosition } from "../services/botService";
 import { Chess } from "chess.js";
 interface BotGameEntry {
   level: number;

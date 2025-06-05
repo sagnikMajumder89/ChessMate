@@ -3,7 +3,7 @@ import {
   getGameStateByUser,
   moveGameToDB,
   saveGameState,
-} from "@/lib/game/gameState";
+} from "@/lib/services/gameState";
 import { v4 as uuidv4 } from "uuid";
 import redis from "@/lib/db/redis";
 import { Server, Socket } from "socket.io";

@@ -4,15 +4,18 @@ dotenv.config();
 import { createServer } from "http";
 import { Server } from "socket.io";
 import next from "next";
-import redis from "./lib/db/redis";
 import { logger } from "./lib/logger";
 import { findGame } from "./lib/socket/findGame";
 import moveHandler from "./lib/socket/moveHandler";
 import { admin } from "./lib/firebase/firebaseAdmin";
 import { checkUser } from "./lib/socket/auth";
 import { handleMove, setupGame } from "./lib/socket/botGame";
-import { removeBotGameState } from "./lib/game/botGameState";
 import disconnect from "./lib/socket/disconnect";
+import {
+  handleChatConnect,
+  handleNewMessage,
+  initSendChat,
+} from "./lib/socket/chatService";
 const port = parseInt(process.env.PORT || "4000", 10);
 const dev = process.env.NODE_ENV !== "production";
 const app = next({ dev });
@@ -63,11 +66,19 @@ app.prepare().then(() => {
   });
   io.on("connection", (socket) => {
     logger.info(`User connected: ${socket.id}`);
+
+    // User related events
     socket.on("find-game", (data) => findGame(io, socket, data));
     socket.on("move", (data) => moveHandler(io, socket, data));
-    // TO DO: implement bot game
+
+    // Bot related events
     socket.on("find-bot-game", (data) => setupGame(io, socket, data));
     socket.on("bot-move", (data) => handleMove(io, socket, data));
+
+    // Chat related events
+    socket.on("join-chat", (data) => handleChatConnect(socket, data));
+    socket.on("init-chat", (data) => initSendChat(socket, data));
+    socket.on("chat-message", (data) => handleNewMessage(socket, data));
     socket.on("disconnect", async () => {
       await disconnect(socket);
       logger.info(`User disconnected: + ${socket.id}`);

@@ -3,8 +3,22 @@ import ChatComponent from "./ChatComponent";
 import { Button } from "@/components/ui/button";
 import { IoFlag } from "react-icons/io5";
 import { FlipVertical } from "lucide-react";
+import { Socket } from "socket.io-client";
+import { Move } from "@/lib/interfaces";
 
-export default function GameComponent({ moves }: { moves: string[] }) {
+interface GameComponentProps {
+  moves: Move[];
+  gameId: string;
+  socket: Socket;
+  playerId: string;
+}
+
+export default function GameComponent({
+  moves,
+  gameId,
+  socket,
+  playerId,
+}: GameComponentProps) {
   return (
     <div className="flex flex-col items-start px-3 py-4">
       <h2 className="text-lg font-semibold">Moves List</h2>
@@ -12,7 +26,8 @@ export default function GameComponent({ moves }: { moves: string[] }) {
         <ol className="flex flex-col items-start list-decimal pl-5 text-sm text-muted-foreground mt-2">
           {moves.map((move, index) => (
             <li key={index} className="pb-1">
-              {move}
+              {move.to} {move.from}{" "}
+              {move.promotion ? `(${move.promotion})` : ""}
             </li>
           ))}
         </ol>
@@ -27,7 +42,7 @@ export default function GameComponent({ moves }: { moves: string[] }) {
       </div>
 
       {/* Chat Component */}
-      <ChatComponent />
+      <ChatComponent gameId={gameId} socket={socket} playerId={playerId} />
     </div>
   );
 }

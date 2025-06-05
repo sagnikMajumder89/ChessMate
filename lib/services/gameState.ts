@@ -82,11 +82,13 @@ export async function markOffline(uid: string): Promise<void> {
 
 async function deleteGameOnAbandon(gameId: string): Promise<void> {
   const gameState = await getGameState(gameId);
+  const chatKey = `chat:${gameId}`;
   if (
     gameState &&
     !gameState.players.white.online &&
     !gameState.players.black.online
   ) {
+    await redis.del(chatKey);
     await removeUserMapping(gameState.players.white.uid);
     await removeUserMapping(gameState.players.black.uid);
     await removeGameState(gameId);

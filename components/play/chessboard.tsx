@@ -33,6 +33,7 @@ export default function Chessboard({ matchDetails, socket }: ChessboardProps) {
   const [squareStyles, setSquareStyles] = useState<
     Record<string, React.CSSProperties>
   >({});
+
   const [lastMove, setLastMove] = useState<{ from: string; to: string } | null>(
     matchDetails.moves.length > 0
       ? {
@@ -182,7 +183,12 @@ export default function Chessboard({ matchDetails, socket }: ChessboardProps) {
           isActive={game.turn() === matchDetails.user.color}
         />
       </div>
-      <MenuSection />
+      <MenuSection
+        socket={socket}
+        gameId={matchDetails.id}
+        moves={matchDetails.moves}
+        playerId={matchDetails.user.uid}
+      />
       {/* Game Over Dialog */}
       <Dialog open={isGameOver} onOpenChange={() => window.location.reload()}>
         <DialogContent className="text-center">

@@ -1,7 +1,7 @@
 import { Socket } from "socket.io";
 import redis from "../db/redis";
-import { removeBotGameState } from "../game/botGameState";
-import { markOffline } from "../game/gameState";
+import { removeBotGameState } from "../services/botGameState";
+import { markOffline } from "../services/gameState";
 
 export default async function disconnect(socket: Socket) {
   //   Bot game cleanup
