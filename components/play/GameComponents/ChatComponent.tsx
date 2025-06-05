@@ -55,7 +55,13 @@ export default function ChatComponent({
 
   useEffect(() => {
     if (socket) {
-      socket.on("connect-chat", () => setIsConnected(true));
+      socket.on("init-chat", (chatMessages: Message[]) => {
+        setMessages(chatMessages);
+      });
+      socket.on("connect-chat", () =>{
+        socket.emit("init-chat", { gameId });
+        setIsConnected(true);
+      });
       socket.on("chat-message", (message: Message) => {
         setMessages((prevMessages) => [...prevMessages, message]);
       });
@@ -63,10 +69,6 @@ export default function ChatComponent({
         toast.error(error);
         toast.error("Failed to send message");
       });
-      socket.on("init-chat", (chatMessages: Message[]) => {
-        setMessages(chatMessages);
-      });
-      socket.emit("init-chat", { gameId });
       socket.on("disconnect-chat", () => setIsConnected(false));
       socket.on("connect_error", () => {
         toast.error("Error connecting to chat service");
