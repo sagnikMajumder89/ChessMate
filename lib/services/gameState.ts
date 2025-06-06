@@ -3,6 +3,7 @@ import redis from "@/lib/db/redis";
 import { logger } from "../logger";
 import { prisma } from "../db/prisma";
 import { GameStatus } from "@prisma/client";
+import { stopTimeSync } from "./timeSync";
 
 // Define the shape of a player in the game state.
 export interface PlayerDetails {
@@ -83,6 +84,7 @@ export async function markOffline(uid: string): Promise<void> {
 async function deleteGameOnAbandon(gameId: string): Promise<void> {
   const gameState = await getGameState(gameId);
   const chatKey = `chat:${gameId}`;
+  stopTimeSync(gameId);
   if (
     gameState &&
     !gameState.players.white.online &&

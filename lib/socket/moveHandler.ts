@@ -5,6 +5,7 @@ import {
   saveGameState,
 } from "../services/gameState";
 import { Chess } from "chess.js";
+import { stopTimeSync, triggerTimeSync } from "../services/timeSync";
 
 interface Move {
   from: string;
@@ -45,13 +46,6 @@ const moveHandler = async (io: Server, socket: Socket, move: Move) => {
     return;
   }
 
-  const currTime = Date.now();
-  const consumedTime = currTime - gameState.lastMoveTimestamp;
-  if (gameState.currentTurn === "w") {
-    gameState.players.white.timeConsumed += consumedTime;
-  } else {
-    gameState.players.black.timeConsumed += consumedTime;
-  }
   const newMove = {
     from: move.from,
     to: move.to,
@@ -60,16 +54,16 @@ const moveHandler = async (io: Server, socket: Socket, move: Move) => {
   gameState.boardState = game.fen();
   gameState.moves.push(newMove);
   gameState.currentTurn = game.turn();
-  gameState.lastMoveTimestamp = currTime;
+  gameState.lastMoveTimestamp = Date.now();
 
   if (game.isGameOver()) {
+    stopTimeSync(gameId);
     gameState.status = "finished";
     io.to(gameId).emit("gameOver", { message: "Game Over" });
     await moveGameToDB(gameId);
   }
-
   await saveGameState(gameState);
-
+  triggerTimeSync(gameId);
   socket.to(gameId).emit("move", newMove);
 };
 
