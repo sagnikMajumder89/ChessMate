@@ -23,7 +23,7 @@ const Timer: React.FC<TimerProps> = ({ baseTime, socket, timeConsumed, isActive,
     const [remainingTime, setRemainingTime] = useState(baseTime - Math.floor(timeConsumed / 1000));
     useEffect(() => {
         const timeSyncHandler = (time: TimeSyncData) => {
-            const timeConsumed = time[playerColor] + (Date.now() - time.timeStamp);
+            const timeConsumed = time[playerColor];
             toast.success(`Time synced: ${timeConsumed} seconds for ${playerColor === "w" ? "White" : "Black"}`);
             setRemainingTime(Math.max(baseTime - Math.floor(timeConsumed / 1000), 0));
             // let remTime = baseTime - Math.floor(time[playerColor] / 1000);
