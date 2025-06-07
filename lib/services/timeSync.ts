@@ -26,7 +26,7 @@ export function startTimeSync(io: Server, gameId: string) {
       if (!game) return;
 
       const now = Date.now();
-      const elapsed = now - game.timeStamp - 1000;
+      const elapsed = now - game.timeStamp;
 
       if (game.currentTurn === "w") {
         game["w"] += elapsed;
