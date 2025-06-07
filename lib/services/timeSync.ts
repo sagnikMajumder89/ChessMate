@@ -1,5 +1,6 @@
 import { Server } from "socket.io";
-import { getGameState, saveGameState, moveGameToDB } from "./gameState";
+import { getGameState, moveGameToDB, saveGameState } from "./gameState";
+import { getCurrentTime, setCurrentTime } from "./timeService";
 
 interface GameTracker {
   intervalId: NodeJS.Timeout;
@@ -8,58 +9,61 @@ interface GameTracker {
 
 const trackers: Record<string, GameTracker> = {};
 
-
 export function startTimeSync(io: Server, gameId: string) {
   if (trackers[gameId]) {
-    return; 
+    return;
   }
 
   trackers[gameId] = {
     sendNextSync: false,
     intervalId: setInterval(async () => {
-      const game = await getGameState(gameId);
+      const game = await getCurrentTime(gameId);
       if (!game) return;
 
       const now = Date.now();
-      const elapsed = now - game.lastMoveTimestamp;
+      const elapsed = now - game.timeStamp;
 
       if (game.currentTurn === "w") {
-        game.players.white.timeConsumed += elapsed;
-        if (game.players.white.timeConsumed >= game.players.white.baseTime * 1000) {
+        game["w"] += elapsed;
+        if (game["w"] >= game.baseTime * 1000) {
           io.to(gameId).emit("game-over", "Time’s up!");
-          game.players.white.timeConsumed = game.players.white.baseTime * 1000 + 1000;
-          game.status = "finished";
-          await saveGameState(game);
+          console.log("Time's up for player W");
+          const cGame = await getGameState(gameId);
+          if (!cGame) return;
+          cGame.status = "finished";
+          await saveGameState(cGame);
           await moveGameToDB(gameId);
           clearInterval(trackers[gameId].intervalId);
           delete trackers[gameId];
           return;
         }
       } else {
-        game.players.black.timeConsumed += elapsed;
-        if (game.players.black.timeConsumed >= game.players.black.baseTime * 1000) {
+        game["b"] += elapsed;
+        if (game["b"] >= game.baseTime * 1000) {
           io.to(gameId).emit("game-over", "Time’s up!");
-          game.players.black.timeConsumed = game.players.black.baseTime * 1000 + 1000;
-          game.status = "finished";
+          console.log("Time's up for player B");
+          const cGame = await getGameState(gameId);
+          if (!cGame) return;
+          cGame.status = "finished";
+          await saveGameState(cGame);
           await moveGameToDB(gameId);
-          await saveGameState(game);
           clearInterval(trackers[gameId].intervalId);
           delete trackers[gameId];
           return;
         }
       }
-
       if (trackers[gameId].sendNextSync) {
+        game.currentTurn = game.currentTurn === "w" ? "b" : "w";
         io.to(gameId).emit("time-sync", {
-          w: game.players.white.timeConsumed,
-          b: game.players.black.timeConsumed,
+          w: game["w"],
+          b: game["b"],
           timeStamp: now,
         });
         trackers[gameId].sendNextSync = false;
       }
 
-      game.lastMoveTimestamp = now;
-      await saveGameState(game);
+      game.timeStamp = now;
+      await setCurrentTime(gameId, game);
     }, 1000),
   };
 }

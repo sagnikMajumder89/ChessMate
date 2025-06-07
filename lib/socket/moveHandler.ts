@@ -6,6 +6,7 @@ import {
 } from "../services/gameState";
 import { Chess } from "chess.js";
 import { stopTimeSync, triggerTimeSync } from "../services/timeSync";
+import { logger } from "../logger";
 
 interface Move {
   from: string;
@@ -32,38 +33,36 @@ const moveHandler = async (io: Server, socket: Socket, move: Move) => {
     socket.emit("invalidMove", { message: "Not your turn" });
     return;
   }
-
   const game = new Chess(gameState.boardState);
+  try {
+    game.move({
+      from: move.from,
+      to: move.to,
+      promotion: move.promotion || "q",
+    });
 
-  const result = game.move({
-    from: move.from,
-    to: move.to,
-    promotion: move.promotion || "q",
-  });
+    const newMove = {
+      from: move.from,
+      to: move.to,
+      promotion: move.promotion || "q",
+    };
 
-  if (!result) {
-    socket.emit("invalidMove", { move, error: "Illegal move" });
-    return;
+    gameState.boardState = game.fen();
+    gameState.moves.push(newMove);
+    gameState.currentTurn = game.turn();
+    gameState.lastMoveTimestamp = Date.now();
+    await saveGameState(gameState);
+    triggerTimeSync(gameId);
+    socket.to(gameId).emit("move", newMove);
+
+    if (game.isGameOver()) {
+      stopTimeSync(gameId);
+      gameState.status = "finished";
+      await moveGameToDB(gameId);
+    }
+  } catch {
+    logger.error("Invalid move or other error occurred");
   }
-
-  const newMove = {
-    from: move.from,
-    to: move.to,
-    promotion: move.promotion || "q",
-  };
-  gameState.boardState = game.fen();
-  gameState.moves.push(newMove);
-  gameState.currentTurn = game.turn();
-  gameState.lastMoveTimestamp = Date.now();
-
-  if (game.isGameOver()) {
-    stopTimeSync(gameId);
-    gameState.status = "finished";
-    await moveGameToDB(gameId);
-  }
-  await saveGameState(gameState);
-  triggerTimeSync(gameId);
-  socket.to(gameId).emit("move", newMove);
 };
 
 export default moveHandler;

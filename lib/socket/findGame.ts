@@ -1,7 +1,4 @@
-import {
-  getGameStateByUser,
-  saveGameState,
-} from "@/lib/services/gameState";
+import { getGameStateByUser, saveGameState } from "@/lib/services/gameState";
 import { v4 as uuidv4 } from "uuid";
 import redis from "@/lib/db/redis";
 import { Server, Socket } from "socket.io";
@@ -67,6 +64,11 @@ export const findGame = async (
       rated: currGame.rated,
       increment: currGame.increment,
     });
+    const timeKey = `time:${currGame.gameId}`;
+    const timeData = await redis.get(timeKey);
+    if (timeData) {
+      io.to(currGame.gameId).emit("time-sync", JSON.parse(timeData));
+    }
     return;
   }
   const matchKey = `matchmaking:${settings.time}:${settings.increment}:${settings.rated}`;
@@ -99,7 +101,6 @@ export const findGame = async (
       rating: user.rating,
       baseTime: settings.time,
       color: "w" as "w" | "b",
-      timeConsumed: 0,
       photo: user.photo,
     };
     const black = {
@@ -110,7 +111,6 @@ export const findGame = async (
       rating: matchedEntry.rating,
       baseTime: settings.time,
       color: "b" as "w" | "b",
-      timeConsumed: 0,
       photo: matchedEntry.photo,
     };
     delete socket.data.matchKey;
@@ -165,8 +165,19 @@ export const findGame = async (
       updatedAt: Date.now(),
     });
 
+    const timeKey = `time:${newGameId}`;
+    await redis.set(
+      timeKey,
+      JSON.stringify({
+        w: 0,
+        b: 0,
+        currentTurn: "w",
+        baseTime: settings.time,
+        timeStamp: Date.now(),
+      })
+    );
+    io.to(newGameId).emit("time-sync", { w: 0, b: 0, timeStamp: Date.now() });
     startTimeSync(io, newGameId);
-
   } else {
     const entry: StoredEntry = {
       socketId: socket.id,

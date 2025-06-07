@@ -26,7 +26,7 @@ export default function Chessboard({ matchDetails, socket }: ChessboardProps) {
   const gameRef = useRef(new Chess(matchDetails.fen));
   const playerColour = matchDetails.user.color;
 
-  const [winner, setWinner] = useState<string| null>(null);
+  const [winner, setWinner] = useState<string | null>(null);
   const [isGameOver, setIsGameOver] = useState(false);
   const [selectedSquare, setSelectedSquare] = useState<string | null>(null);
   const [legalMoves, setLegalMoves] = useState<string[]>([]);
@@ -137,6 +137,7 @@ export default function Chessboard({ matchDetails, socket }: ChessboardProps) {
 
     socket.on("move", handleIncomingMove);
     socket.on("game-over", (data: string) => {
+      console.log("Game Over:", data);
       setIsGameOver(true);
       setWinner(data);
     });

@@ -20,6 +20,7 @@ interface FindMatchProps {
 }
 
 const timeOptions = [
+  { label: "30 secs", value: 30 },
   { label: "3 mins", value: 180 },
   { label: "10 mins", value: 600 },
 ];

@@ -14,7 +14,6 @@ export interface PlayerDetails {
   rating: number;
   baseTime: number;
   color: "w" | "b";
-  timeConsumed: number;
 }
 
 export interface GameState {
@@ -84,6 +83,7 @@ export async function markOffline(uid: string): Promise<void> {
 async function deleteGameOnAbandon(gameId: string): Promise<void> {
   const gameState = await getGameState(gameId);
   const chatKey = `chat:${gameId}`;
+  const timeKey = `time:${gameId}`;
   stopTimeSync(gameId);
   if (
     gameState &&
@@ -91,6 +91,7 @@ async function deleteGameOnAbandon(gameId: string): Promise<void> {
     !gameState.players.black.online
   ) {
     await redis.del(chatKey);
+    await redis.del(timeKey);
     await removeUserMapping(gameState.players.white.uid);
     await removeUserMapping(gameState.players.black.uid);
     await removeGameState(gameId);
@@ -114,6 +115,8 @@ export async function moveGameToDB(gameId: string): Promise<void> {
       logger.error(`Game state not found for gameId: ${gameId}`);
       return;
     }
+    await redis.del(`time:${gameId}`);
+    await redis.del(`chat:${gameId}`);
     await removeUserMapping(gameState.players.white.uid);
     await removeUserMapping(gameState.players.black.uid);
     await removeGameState(gameId);
