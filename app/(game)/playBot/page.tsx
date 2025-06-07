@@ -8,6 +8,7 @@ import { getSocket } from "@/config/socketClient";
 import type { Socket } from "socket.io-client";
 import BotChessboard from "@/components/playBot/BotComponent/Chessboard";
 import GameComponent from "@/components/playBot/Dialogs/GameComponent";
+import { toast } from "sonner";
 let socket: Socket | undefined;
 
 export default function Page() {
@@ -34,7 +35,7 @@ export default function Page() {
           setIsConnected(true);
         });
         socket.on("connect_error", () => {
-          console.error("Error connecting to server");
+          toast.error("Error connecting to server");
         });
         socket.on("disconnect", () => {
           setIsConnected(false);
@@ -45,7 +46,7 @@ export default function Page() {
           setBoardOrientation(data.color);
         });
       } else {
-        console.error("Socket is null");
+        toast.error("Socket is null");
       }
     };
     initialize();

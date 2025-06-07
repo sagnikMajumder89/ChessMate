@@ -1,4 +1,5 @@
 import { spawn } from "child_process";
+import { logger } from "../logger";
 
 // Add move parsing function based on search results [1][2]
 function parseBestMove(moveStr: string): {
@@ -67,7 +68,7 @@ export async function getBestMoveForPosition(
     const bestMove = await getBestMove(fen);
     return bestMove;
   } catch (error) {
-    console.error("Error getting best move:", error);
+    logger.error("Error getting best move from bot:", error);
     throw error;
   }
 }

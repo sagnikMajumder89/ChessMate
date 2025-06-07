@@ -8,6 +8,7 @@ interface GameTracker {
 }
 
 const trackers: Record<string, GameTracker> = {};
+const lockers: Record<string, boolean> = {};
 
 export function startTimeSync(io: Server, gameId: string) {
   if (trackers[gameId]) {
@@ -17,17 +18,20 @@ export function startTimeSync(io: Server, gameId: string) {
   trackers[gameId] = {
     sendNextSync: false,
     intervalId: setInterval(async () => {
+      if (lockers[gameId]) {
+        return; // Skip this iteration if the game is locked
+      }
+      lockers[gameId] = true; // Lock the game to prevent concurrent access
       const game = await getCurrentTime(gameId);
       if (!game) return;
 
       const now = Date.now();
-      const elapsed = Math.max(now - game.timeStamp - 1000, 0);
+      const elapsed = now - game.timeStamp - 1000;
 
       if (game.currentTurn === "w") {
         game["w"] += elapsed;
         if (game["w"] >= game.baseTime * 1000) {
           io.to(gameId).emit("game-over", "Time’s up!");
-          console.log("Time's up for player W");
           const cGame = await getGameState(gameId);
           if (!cGame) return;
           cGame.status = "finished";
@@ -41,7 +45,6 @@ export function startTimeSync(io: Server, gameId: string) {
         game["b"] += elapsed;
         if (game["b"] >= game.baseTime * 1000) {
           io.to(gameId).emit("game-over", "Time’s up!");
-          console.log("Time's up for player B");
           const cGame = await getGameState(gameId);
           if (!cGame) return;
           cGame.status = "finished";
@@ -64,6 +67,7 @@ export function startTimeSync(io: Server, gameId: string) {
 
       game.timeStamp = now;
       await setCurrentTime(gameId, game);
+      lockers[gameId] = false; // Unlock the game after processing
     }, 1000),
   };
 }

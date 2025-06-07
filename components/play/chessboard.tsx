@@ -137,7 +137,6 @@ export default function Chessboard({ matchDetails, socket }: ChessboardProps) {
 
     socket.on("move", handleIncomingMove);
     socket.on("game-over", (data: string) => {
-      console.log("Game Over:", data);
       setIsGameOver(true);
       setWinner(data);
     });
