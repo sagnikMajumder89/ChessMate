@@ -5,7 +5,7 @@ import { admin } from "@/lib/firebase/firebaseAdmin";
 import { checkUser } from "@/lib/socket/auth";
 
 
-export async function GET(req: NextRequest, { params }: { params: { uid: string } }) {
+export async function GET(req: NextRequest) {
   const authHeader = req.headers.get("authorization");
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {

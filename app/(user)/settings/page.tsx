@@ -6,7 +6,7 @@ export default function Settings() {
         Customization options coming soon.
       </p>
       <p className="text-sm text-gray-500 mt-1">
-        You'll be able to personalize your ChessMate experience — themes,
+        You&apos;ll be able to personalize your ChessMate experience — themes,
         preferences, and more!
       </p>
     </div>

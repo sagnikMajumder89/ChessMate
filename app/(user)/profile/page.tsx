@@ -1,7 +1,7 @@
 "use client";
 import { useAuth } from "@/lib/auth/authContext";
 import { useEffect, useRef, useState } from "react";
-import { MdModeEdit, MdSave } from "react-icons/md";
+import { MdModeEdit } from "react-icons/md";
 import countries from "@/lib/services/countries";
 import {
   Select,
