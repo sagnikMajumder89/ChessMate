@@ -44,22 +44,22 @@ const items = [
   },
   {
     title: "Puzzles",
-    url: "#",
+    url: "/puzzles",
     icon: "/icons/puzzle.webp",
   },
   {
     title: "Learn",
-    url: "#",
+    url: "/learn",
     icon: "/icons/learn.webp",
   },
   {
     title: "Watch",
-    url: "#",
+    url: "/watch",
     icon: "/icons/watch.webp",
   },
   {
     title: "News",
-    url: "#",
+    url: "/news",
     icon: "/icons/newspaper.webp",
   },
 ];
@@ -77,27 +77,29 @@ const supportItems = [
   },
 ];
 
-const userItems = [
-  {
-    title: "Profile",
-    function: () => {},
-    icon: User,
-  },
-  {
-    title: "Settings",
-    function: () => {},
-    icon: Settings,
-  },
-  {
-    title: "Sign Out",
-    icon: LogOut,
-  },
-];
-
 export function AppSidebar() {
   const { user } = useAuth();
   const router = useRouter();
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+  const userItems = [
+    {
+      title: "Profile",
+      function: () => router.push("/profile"),
+      icon: User,
+    },
+    {
+      title: "Settings",
+      function: () => router.push("/settings"),
+      icon: Settings,
+    },
+    {
+      title: "Sign Out",
+      function: () => {
+        setShowLogoutDialog(true);
+      },
+      icon: LogOut,
+    },
+  ];
 
   const handleLogout = async () => {
     setShowLogoutDialog(false);
@@ -168,18 +170,14 @@ export function AppSidebar() {
           {/* User Menu */}
           {user ? (
             <SidebarGroup>
-              <SidebarGroupLabel>User</SidebarGroupLabel>
+              <SidebarGroupLabel>User ({user.email})</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
                   {userItems.map((item) => (
                     <SidebarMenuItem key={item.title}>
                       <SidebarMenuButton
-                        onClick={
-                          item.title === "Sign Out"
-                            ? () => setShowLogoutDialog(true)
-                            : item.function
-                        }
-                        className="flex items-center gap-3"
+                        onClick={item.function}
+                        className="flex items-center gap-3 cursor-pointer"
                       >
                         <item.icon className="w-5 h-5" />
                         <span>{item.title}</span>

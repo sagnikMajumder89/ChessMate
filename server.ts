@@ -45,10 +45,7 @@ app.prepare().then(() => {
 
     try {
       const decodedToken = await admin.auth().verifyIdToken(token);
-      const userDB = await checkUser({
-        uid: decodedToken.uid,
-        email: decodedToken.email as string,
-      });
+      const userDB = await checkUser(decodedToken);
 
       socket.data.user = {
         id: userDB!.id,
