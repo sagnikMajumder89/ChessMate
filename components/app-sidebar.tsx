@@ -175,12 +175,11 @@ export function AppSidebar() {
                 <SidebarMenu>
                   {userItems.map((item) => (
                     <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton
-                        onClick={item.function}
-                        className="flex items-center gap-3 cursor-pointer"
-                      >
-                        <item.icon className="w-5 h-5" />
-                        <span>{item.title}</span>
+                      <SidebarMenuButton onClick={item.function} asChild>
+                        <div className="flex items-center gap-3 cursor-pointer">
+                          <item.icon className="w-5 h-5" />
+                          <span>{item.title}</span>
+                        </div>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   ))}
