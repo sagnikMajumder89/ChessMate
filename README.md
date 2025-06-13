@@ -11,8 +11,8 @@ This is a **Chess Website** built as a college project, designed to showcase sca
 ### **Backend & Database**
 
 - **PostgreSQL** – For user profiles, leaderboards, and structured data.
-- **MongoDB** – For storing game history in a flexible format.
 - **Redis** – For caching and real-time game state.
+- **VPS** - For hosting
 
 ### **Real-time Communication**
 
@@ -22,8 +22,7 @@ This is a **Chess Website** built as a college project, designed to showcase sca
 
 - **User Authentication** using Firebase Authentication.
 - **Real-time Chess Gameplay** with WebSockets (Socket.io).
-- **Game History Storage** with MongoDB.
-- **Leaderboard System** with PostgreSQL.
+- **Game History Storage** with PostgreSQL.
 - **High Performance** with Redis caching.
 - **Smooth UI/UX** with Next.js and shadcn/ui components.
 
@@ -35,15 +34,14 @@ Ensure you have the following installed:
 
 - Node.js (Latest LTS)
 - PostgreSQL
-- MongoDB
 - Redis
 
 ### **Installation**
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-repo/chess-website.git
-cd chess-website
+git clone https://github.com/sagnikMajumder89/ChessMate.git
+cd ChessMate
 
 # Install dependencies
 npm install
@@ -77,7 +75,7 @@ npm run dev
 ### **Build for Production**
 
 ```bash
-npm run build
+npm run build:server
 npm start
 ```
 
@@ -86,7 +84,7 @@ npm start
 You can deploy the project using platforms like:
 
 - **Vercel** (Recommended for Next.js frontend)
-- **Hostinger + Nginx** (For backend with PostgreSQL, MongoDB, and Redis)
+- **Hostinger + Nginx** (For backend with PostgreSQL, and Redis)
 
 ## Contributing
 
